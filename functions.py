@@ -89,54 +89,6 @@ def query_data(driver, field: str = "BATTING"):
     return driver
 
 
-
-
-# def query_batting_data(driver):
-
-#     # Navigate to statistics tab
-#     driver.find_element(By.LINK_TEXT, "STATISTICS").click()
-#     time.sleep(1)
-
-#     # Open data filter tab
-#     driver.find_element(By.CLASS_NAME, "btn-filter").click()
-#     time.sleep(1)
-
-#     # Edit minimum filter to equal one
-#     driver.find_element(By.ID, "atleast").send_keys(Keys.BACKSPACE + '1')
-#     time.sleep(1)
-
-#     # Update search paramaters
-#     driver.find_element(By.NAME, "commit").click()
-#     time.sleep(1)
-
-#     return driver
-
-
-# def query_bowling_data(driver):
-
-#     # Navigate to statistics tab
-#     driver.find_element(By.LINK_TEXT, "STATISTICS").click()
-#     time.sleep(1)
-
-#     # Navigate to statistics tab
-#     driver.find_element(By.LINK_TEXT, "BOWLING").click()
-#     time.sleep(1)
-
-#     # Open data filter tab
-#     driver.find_element(By.CLASS_NAME, "btn-filter").click()
-#     time.sleep(1)
-
-#     # Edit minimum filter to equal one
-#     driver.find_element(By.ID, "atleast").send_keys(Keys.BACKSPACE + '1')
-#     time.sleep(1)
-
-#     # Update search paramaters
-#     driver.find_element(By.NAME, "commit").click()
-#     time.sleep(1)
-
-#     return driver
-
-
 def collect_outfield_data(driver, output_filename: str):
 
     # Collect page source

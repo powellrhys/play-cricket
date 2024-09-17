@@ -36,23 +36,23 @@ logger.info('Play Cricket Authentication Complete')
 driver = remove_cookies_pop_up(driver)
 logger.info('Cookie Disabled')
 
-# # Query batting data
-# driver = query_data(driver, 'BATTING')
-# logger.info('Batting Query Executed')
+# Query batting data
+driver = query_data(driver, 'BATTING')
+logger.info('Batting Query Executed')
 
-# # Collect batting data
-# logger.info('Collecting Summary of Batting Data...')
-# driver = collect_batting_data(driver)
-# logger.info('Summary of batting data collected')
+# Collect batting data
+logger.info('Collecting Summary of Batting Data...')
+driver = collect_batting_data(driver)
+logger.info('Summary of batting data collected')
 
-# # Query bowling data
-# driver = query_data(driver, 'BOWLING')
-# logger.info('Bowling Query Executed')
+# Query bowling data
+driver = query_data(driver, 'BOWLING')
+logger.info('Bowling Query Executed')
 
-# # Collect batting data
-# logger.info('Collecting Summary of Bowling Data...')
-# driver = collect_outfield_data(driver, 'bowling_data.csv')
-# logger.info('Summary of bowling data collected')
+# Collect batting data
+logger.info('Collecting Summary of Bowling Data...')
+driver = collect_outfield_data(driver, 'bowling_data.csv')
+logger.info('Summary of bowling data collected')
 
 # Query bowling data
 driver = query_data(driver, 'FIELDING')
