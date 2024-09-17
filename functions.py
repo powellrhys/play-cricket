@@ -64,10 +64,14 @@ def remove_cookies_pop_up(driver):
     return driver
 
 
-def query_batting_data(driver):
+def query_data(driver, field: str = "BATTING"):
 
     # Navigate to statistics tab
     driver.find_element(By.LINK_TEXT, "STATISTICS").click()
+    time.sleep(1)
+
+    # Navigate to statistics tab
+    driver.find_element(By.LINK_TEXT, field).click()
     time.sleep(1)
 
     # Open data filter tab
@@ -85,7 +89,50 @@ def query_batting_data(driver):
     return driver
 
 
-def collect_batting_data_summary_data(driver):
+def collect_outfield_data(driver, output_filename: str):
+
+    # Collect page source
+    page_source = driver.page_source
+    soup = BeautifulSoup(page_source, 'html.parser')
+
+    # Parse the html to find the data
+    table = soup.find('table')
+
+    # Collect table headers
+    headers = []
+    for th in table.find_all('th'):
+        headers.append(th.text.strip())
+
+    # Create empty dataframe
+    summary_df = pd.DataFrame(columns=headers)
+
+    # Iterate through each page to collect batting stats for the year
+    scan_pages = True
+    while scan_pages:
+        try:
+            summary_df, _ = collect_table_data(driver, headers,
+                                               summary_df)
+            time.sleep(1)
+
+            # Return to previous page
+            driver.find_element(By.LINK_TEXT, "Next").click()
+            time.sleep(1)
+
+        except BaseException:
+
+            # Exit while loop
+            scan_pages = False
+
+    # Clean batting summary dataframe
+    summary_df = summary_df.reset_index().drop(columns=['index'])
+
+    # Write data to csv file
+    summary_df.to_csv(output_filename, index=False)
+
+    return driver
+
+
+def collect_batting_data(driver):
 
     # Collect page source
     page_source = driver.page_source
@@ -103,13 +150,13 @@ def collect_batting_data_summary_data(driver):
     summary_df = pd.DataFrame(columns=headers)
 
     # Define individual batting stats column headers
-    indiviaul_batting_stats_columns = \
+    individual_batting_stats_columns = \
         ['SEASON', 'GAMES', 'INNS', 'NOT OUTS', 'RUNS', 'HIGH SCORE',
          'AVG', '50s', '100s', '4s', '6s', 'DUCKS', '%TEAM RUNS', 'PLAYER']
 
     # Create empty individual batting stats dataframe
     batting_stats_df = \
-        pd.DataFrame(columns=indiviaul_batting_stats_columns)
+        pd.DataFrame(columns=individual_batting_stats_columns)
 
     # Iterate through each page to collect batting stats for the year
     scan_pages = True
@@ -121,7 +168,7 @@ def collect_batting_data_summary_data(driver):
 
             # Iterate through each player and collect their batting data
             for player in page_df['PLAYER'].tolist():
-  
+
                 # Collect individual batting data
                 batting_stats_df = \
                     collect_individual_player_batting_data(driver, player,

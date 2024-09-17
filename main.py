@@ -4,8 +4,8 @@ import logging
 import os
 
 from functions import configure_driver, login_to_play_cricket, \
-    remove_cookies_pop_up, query_batting_data, \
-    collect_batting_data_summary_data
+    remove_cookies_pop_up, query_data, \
+    collect_batting_data, collect_outfield_data
 
 # Ignore warnings
 warnings.filterwarnings("ignore")
@@ -37,12 +37,30 @@ driver = remove_cookies_pop_up(driver)
 logger.info('Cookie Disabled')
 
 # Query batting data
-driver = query_batting_data(driver)
+driver = query_data(driver, 'BATTING')
 logger.info('Batting Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Batting Data...')
-driver = collect_batting_data_summary_data(driver)
+driver = collect_batting_data(driver)
 logger.info('Summary of batting data collected')
+
+# Query bowling data
+driver = query_data(driver, 'BOWLING')
+logger.info('Bowling Query Executed')
+
+# Collect batting data
+logger.info('Collecting Summary of Bowling Data...')
+driver = collect_outfield_data(driver, 'bowling_data.csv')
+logger.info('Summary of bowling data collected')
+
+# Query bowling data
+driver = query_data(driver, 'FIELDING')
+logger.info('Fielding Query Executed')
+
+# Collect batting data
+logger.info('Collecting Summary of Fielding Data...')
+driver = collect_outfield_data(driver, 'fielding_data.csv')
+logger.info('Summary of fielding data collected')
 
 driver.quit()
