@@ -292,8 +292,7 @@ def collect_individual_player_batting_data(driver, player_name,
     batting_stats_df = pd.concat([batting_stats_df, page_df])
 
     # Filter out old data - only keep data from the current season
-    batting_stats_df = batting_stats_df[batting_stats_df['SEASON'] ==
-                                        str(datetime.now().year)]
+    batting_stats_df = batting_stats_df[batting_stats_df['SEASON'] == str(datetime.now().year)]
 
     # Return to previous page
     time.sleep(1)
