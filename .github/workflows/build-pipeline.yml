@@ -42,4 +42,4 @@ jobs:
 
       - name: Lint with yamllint
         run: |
-          yamllint -c .yamllint.yml .github/workflows/build-backend.yml
+          yamllint -c .yamllint.yml .
