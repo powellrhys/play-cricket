@@ -71,6 +71,7 @@ def configure_driver():
     # Configure logging to suppress unwanted messages
     chrome_options = Options()
     chrome_options.add_argument("--log-level=3")
+    chrome_options.add_argument("--headless")
 
     # Configure Driver with options
     service = Service(executable_path="chromedriver.exe")
