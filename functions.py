@@ -66,12 +66,15 @@ def email_results(club: str,
         smtp.sendmail(email_sender, email_reciever, em.as_string())
 
 
-def configure_driver(driver_path: str = 'chromedriver.exe'):
+def configure_driver(driver_path: str = 'chromedriver.exe',
+                     headless: bool = False):
 
     # Configure logging to suppress unwanted messages
     chrome_options = Options()
     chrome_options.add_argument("--log-level=3")
-    chrome_options.add_argument("--headless")
+
+    if headless:
+        chrome_options.add_argument("--headless")
 
     # Configure Driver with options
     service = Service(executable_path=driver_path)
