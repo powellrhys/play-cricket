@@ -66,7 +66,7 @@ def email_results(club: str,
         smtp.sendmail(email_sender, email_reciever, em.as_string())
 
 
-def configure_driver():
+def configure_driver(driver_path: str = 'chromedriver.exe'):
 
     # Configure logging to suppress unwanted messages
     chrome_options = Options()
@@ -74,7 +74,7 @@ def configure_driver():
     chrome_options.add_argument("--headless")
 
     # Configure Driver with options
-    service = Service(executable_path='/usr/bin/chromedriver')
+    service = Service(executable_path=driver_path)
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.maximize_window()
 
