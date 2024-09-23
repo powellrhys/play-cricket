@@ -74,7 +74,7 @@ def configure_driver():
     chrome_options.add_argument("--headless")
 
     # Configure Driver with options
-    service = Service(executable_path="chromedriver.exe")
+    service = Service(executable_path='/usr/bin/chromedriver')
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.maximize_window()
 
