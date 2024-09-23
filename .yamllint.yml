@@ -7,4 +7,3 @@ rules:
   truthy: disable
   line-length:
     max: 100
-  
