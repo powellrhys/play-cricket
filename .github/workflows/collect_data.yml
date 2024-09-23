@@ -42,12 +42,12 @@ jobs:
 
       - name: Run Python scrape script
         env:
-          club: {{ secrets.club }}
-          email: {{ secrets.email }}
-          password: {{ secrets.password }}
-          email_sender: {{ secrets.email_sender }}
-          email_password: {{ secrets.email_password }}
-          email_reciever: {{ secrets.email_reciever }}
+          club: ${{ secrets.club }}
+          email: ${{ secrets.email }}
+          password: ${{ secrets.password }}
+          email_sender: ${{ secrets.email_sender }}
+          email_password: ${{ secrets.email_password }}
+          email_reciever: ${{ secrets.email_reciever }}
           driver_path: '/usr/bin/chromedriver'
         run: |
           python main.py
