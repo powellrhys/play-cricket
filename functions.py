@@ -88,7 +88,7 @@ def login_to_play_cricket(driver, club, email, password):
 
     # Open chrome on specific play cricket club
     driver.get(f"http://{club}.play-cricket.com/users/sign_in")
-    time.sleep(2)
+    time.sleep(10)
 
     # Enter email and password into login page
     driver.find_element(By.ID, 'password').send_keys(password)
