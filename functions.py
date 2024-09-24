@@ -18,7 +18,6 @@ from datetime import datetime
 from io import StringIO
 import pandas as pd
 import smtplib
-import time
 import ssl
 
 
@@ -186,11 +185,11 @@ def collect_outfield_data(driver, output_filename: str):
         try:
             summary_df, _ = collect_table_data(driver, headers,
                                                summary_df)
-            time.sleep(1)
 
             # Return to previous page
+            WebDriverWait(driver, 10) \
+                .until(EC.presence_of_element_located((By.LINK_TEXT, "Next")))
             driver.find_element(By.LINK_TEXT, "Next").click()
-            time.sleep(1)
 
         except BaseException:
 
@@ -238,7 +237,6 @@ def collect_batting_data(driver):
         try:
             summary_df, page_df = collect_table_data(driver, headers,
                                                      summary_df)
-            time.sleep(1)
 
             # Iterate through each player and collect their batting data
             for player in page_df['PLAYER'].tolist():
@@ -249,9 +247,9 @@ def collect_batting_data(driver):
                                                            batting_stats_df)
 
             # Return to previous page
-            time.sleep(1)
+            WebDriverWait(driver, 10) \
+                .until(EC.presence_of_element_located((By.LINK_TEXT, "Next")))
             driver.find_element(By.LINK_TEXT, "Next").click()
-            time.sleep(1)
 
         except BaseException:
 
@@ -280,8 +278,9 @@ def collect_batting_data(driver):
 def collect_individual_player_batting_data(driver, player_name,
                                            batting_stats_df):
 
-    # Open indivial player batting stats
-    time.sleep(2)
+    # Open individual player batting stats
+    WebDriverWait(driver, 10) \
+        .until(EC.presence_of_element_located((By.LINK_TEXT, player_name)))
     driver.find_element(By.LINK_TEXT, player_name).click()
 
     # Load page source
@@ -312,7 +311,6 @@ def collect_individual_player_batting_data(driver, player_name,
     batting_stats_df = batting_stats_df[batting_stats_df['SEASON'] == str(datetime.now().year)]
 
     # Return to previous page
-    time.sleep(1)
     driver.back()
 
     return batting_stats_df
