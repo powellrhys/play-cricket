@@ -13,9 +13,10 @@ on:
 jobs:
   scrape-data:
     runs-on: ubuntu-latest
+    name: Collect Data
 
     steps:
-      
+
       # Checkout repository code
       - name: Checkout code
         uses: actions/checkout@v3
