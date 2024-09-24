@@ -109,17 +109,15 @@ def login_to_play_cricket(driver, club, email, password):
     i = 0
     while i < 5:
         try:
-            time.sleep(1)
-            driver.find_element(By.CLASS_NAME, "sc-bBHwJV") \
-                .click()
+            # Click Submit on login form
+            WebDriverWait(driver, 10) \
+                .until(EC.presence_of_element_located((By.CLASS_NAME, "sc-bBHwJV")))
+            driver.find_element(By.CLASS_NAME, "sc-bBHwJV").click()
 
         except BaseException:
             pass
 
         i = i + 1
-
-    # Allow some time for to ensure the login was succesful
-    time.sleep(3)
 
     return driver
 
@@ -127,10 +125,10 @@ def login_to_play_cricket(driver, club, email, password):
 def remove_cookies_pop_up(driver):
 
     # Remove cookies pop up
-    time.sleep(5)
-    driver.find_element(By.CLASS_NAME, "onetrust-close-btn-handler") \
-        .click()
-    time.sleep(1)
+    WebDriverWait(driver, 10) \
+        .until(EC.presence_of_element_located(
+            (By.CLASS_NAME, "onetrust-close-btn-handler")))
+    driver.find_element(By.CLASS_NAME, "onetrust-close-btn-handler").click()
 
     return driver
 
@@ -138,25 +136,29 @@ def remove_cookies_pop_up(driver):
 def query_data(driver, field: str = "BATTING"):
 
     # Navigate to statistics tab
-    time.sleep(5)
+    WebDriverWait(driver, 10) \
+        .until(EC.presence_of_element_located((By.LINK_TEXT, "STATISTICS")))
     driver.find_element(By.LINK_TEXT, "STATISTICS").click()
-    time.sleep(2)
 
     # Navigate to statistics tab
+    WebDriverWait(driver, 10) \
+        .until(EC.presence_of_element_located((By.LINK_TEXT, field)))
     driver.find_element(By.LINK_TEXT, field).click()
-    time.sleep(2)
 
     # Open data filter tab
+    WebDriverWait(driver, 10) \
+        .until(EC.presence_of_element_located((By.CLASS_NAME, "btn-filter")))
     driver.find_element(By.CLASS_NAME, "btn-filter").click()
-    time.sleep(2)
 
     # Edit minimum filter to equal one
+    WebDriverWait(driver, 10) \
+        .until(EC.presence_of_element_located((By.ID, "atleast")))
     driver.find_element(By.ID, "atleast").send_keys(Keys.BACKSPACE + '1')
-    time.sleep(2)
 
-    # Update search paramaters
+    # Update search parameters
+    WebDriverWait(driver, 10) \
+        .until(EC.presence_of_element_located((By.NAME, "commit")))
     driver.find_element(By.NAME, "commit").click()
-    time.sleep(2)
 
     return driver
 
