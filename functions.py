@@ -150,7 +150,7 @@ def query_data(driver, field: str = "BATTING"):
     driver.find_element(By.CLASS_NAME, "btn-filter").click()
 
     # Edit minimum filter to equal one
-    WebDriverWait(driver, 10) \
+    WebDriverWait(driver, 20) \
         .until(EC.presence_of_element_located((By.ID, "atleast")))
     driver.find_element(By.ID, "atleast").send_keys(Keys.BACKSPACE + '1')
 
