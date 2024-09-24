@@ -1,12 +1,18 @@
-
+# Import Selenium dependencies
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-from email.mime.application import MIMEApplication
 from selenium.webdriver.common.keys import Keys
-from email.mime.multipart import MIMEMultipart
 from selenium.webdriver.common.by import By
-from email.mime.text import MIMEText
 from selenium import webdriver
+
+# Import email dependencies
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+# Import python dependencies
 from bs4 import BeautifulSoup
 from datetime import datetime
 from io import StringIO
@@ -88,10 +94,15 @@ def login_to_play_cricket(driver, club, email, password):
 
     # Open chrome on specific play cricket club
     driver.get(f"http://{club}.play-cricket.com/users/sign_in")
-    time.sleep(10)
 
-    # Enter email and password into login page
+    # Enter Password into login form
+    WebDriverWait(driver, 10) \
+        .until(EC.presence_of_element_located((By.ID, 'password')))
     driver.find_element(By.ID, 'password').send_keys(password)
+
+    # Enter email into login form
+    WebDriverWait(driver, 10) \
+        .until(EC.presence_of_element_located((By.ID, 'email')))
     driver.find_element(By.ID, 'email').send_keys(email)
 
     # Click Login button
