@@ -1,12 +1,18 @@
-
+# Import Selenium dependencies
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-from email.mime.application import MIMEApplication
 from selenium.webdriver.common.keys import Keys
-from email.mime.multipart import MIMEMultipart
 from selenium.webdriver.common.by import By
-from email.mime.text import MIMEText
 from selenium import webdriver
+
+# Import email dependencies
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+# Import python dependencies
 from bs4 import BeautifulSoup
 from datetime import datetime
 from io import StringIO
@@ -66,14 +72,18 @@ def email_results(club: str,
         smtp.sendmail(email_sender, email_reciever, em.as_string())
 
 
-def configure_driver():
+def configure_driver(driver_path: str = 'chromedriver.exe',
+                     headless: bool = False):
 
     # Configure logging to suppress unwanted messages
     chrome_options = Options()
     chrome_options.add_argument("--log-level=3")
 
+    if headless:
+        chrome_options.add_argument("--headless")
+
     # Configure Driver with options
-    service = Service(executable_path="chromedriver.exe")
+    service = Service(executable_path=driver_path)
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.maximize_window()
 
@@ -84,10 +94,15 @@ def login_to_play_cricket(driver, club, email, password):
 
     # Open chrome on specific play cricket club
     driver.get(f"http://{club}.play-cricket.com/users/sign_in")
-    time.sleep(2)
 
-    # Enter email and password into login page
+    # Enter Password into login form
+    WebDriverWait(driver, 10) \
+        .until(EC.presence_of_element_located((By.ID, 'password')))
     driver.find_element(By.ID, 'password').send_keys(password)
+
+    # Enter email into login form
+    WebDriverWait(driver, 10) \
+        .until(EC.presence_of_element_located((By.ID, 'email')))
     driver.find_element(By.ID, 'email').send_keys(email)
 
     # Click Login button
@@ -292,8 +307,7 @@ def collect_individual_player_batting_data(driver, player_name,
     batting_stats_df = pd.concat([batting_stats_df, page_df])
 
     # Filter out old data - only keep data from the current season
-    batting_stats_df = batting_stats_df[batting_stats_df['SEASON'] ==
-                                        str(datetime.now().year)]
+    batting_stats_df = batting_stats_df[batting_stats_df['SEASON'] == str(datetime.now().year)]
 
     # Return to previous page
     time.sleep(1)
