@@ -146,26 +146,20 @@ def query_data(driver, field: str = "BATTING"):
     driver.find_element(By.LINK_TEXT, field).click()
 
     # Open data filter tab
+    time.sleep(2)
     WebDriverWait(driver, 10) \
-        .until(EC.presence_of_element_located((By.CLASS_NAME, "btn-filter")))
+        .until(EC.element_to_be_clickable((By.CLASS_NAME, "btn-filter")))
     driver.find_element(By.CLASS_NAME, "btn-filter").click()
 
-    time.sleep(2)
-
     # Edit minimum filter to equal one
-    WebDriverWait(driver, 20) \
-        .until(EC.presence_of_element_located((By.ID, "atleast")))
-    driver.find_element(By.ID, "atleast").send_keys(Keys.BACKSPACE + '1')
     time.sleep(2)
-
-    # # Edit minimum filter to equal one
-    # WebDriverWait(driver, 20) \
-    #     .until(EC.presence_of_element_located((By.ID, "atleast")))
-    # driver.find_element(By.ID, "atleast").send_keys(Keys.BACKSPACE + '1')
+    WebDriverWait(driver, 10) \
+        .until(EC.element_to_be_clickable((By.ID, "atleast")))
+    driver.find_element(By.ID, "atleast").send_keys(Keys.BACKSPACE + '1')
 
     # Update search parameters
-    WebDriverWait(driver, 10) \
-        .until(EC.presence_of_element_located((By.NAME, "commit")))
+    WebDriverWait(driver, 20) \
+        .until(EC.element_to_be_clickable((By.NAME, "commit")))
     driver.find_element(By.NAME, "commit").click()
 
     return driver
@@ -246,6 +240,7 @@ def collect_batting_data(driver):
         try:
             summary_df, page_df = collect_table_data(driver, headers,
                                                      summary_df)
+            time.sleep(1)
 
             # Iterate through each player and collect their batting data
             for player in page_df['PLAYER'].tolist():
@@ -288,8 +283,9 @@ def collect_individual_player_batting_data(driver, player_name,
                                            batting_stats_df):
 
     # Open individual player batting stats
+    time.sleep(2)
     WebDriverWait(driver, 10) \
-        .until(EC.presence_of_element_located((By.LINK_TEXT, player_name)))
+        .until(EC.element_to_be_clickable((By.LINK_TEXT, player_name)))
     driver.find_element(By.LINK_TEXT, player_name).click()
 
     # Load page source
@@ -320,6 +316,7 @@ def collect_individual_player_batting_data(driver, player_name,
     batting_stats_df = batting_stats_df[batting_stats_df['SEASON'] == str(datetime.now().year)]
 
     # Return to previous page
+    time.sleep(2)
     driver.back()
 
     return batting_stats_df

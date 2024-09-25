@@ -30,7 +30,7 @@ email_password = os.getenv('email_password')
 email_reciever = os.getenv('email_reciever')
 
 # Configure Selenium Driver
-driver = configure_driver(driver_path, headless)
+driver = configure_driver(driver_path, bool(headless))
 logger.info('Selenium Driver Configured')
 
 # Login to play cricket
