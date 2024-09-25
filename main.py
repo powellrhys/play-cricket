@@ -68,9 +68,11 @@ logger.info('Collecting Summary of Fielding Data...')
 driver, fielding_df = collect_outfield_data(driver, 'fielding_data.csv')
 logger.info('Summary of fielding data collected')
 
-logger.info('Emailing Results...')
-email_results(club, email_sender, email_password, email_reciever,
-              batting_df, bowling_df, fielding_df)
-logger.info('Results emailed')
+if os.getenv('to_email'):
+
+    logger.info('Emailing Results...')
+    email_results(club, email_sender, email_password, email_reciever,
+                  batting_df, bowling_df, fielding_df)
+    logger.info('Results emailed')
 
 driver.quit()

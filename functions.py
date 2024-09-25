@@ -140,19 +140,22 @@ def query_data(driver, field: str = "BATTING"):
         .until(EC.presence_of_element_located((By.LINK_TEXT, "STATISTICS")))
     driver.find_element(By.LINK_TEXT, "STATISTICS").click()
 
-    # Navigate to statistics tab
-    WebDriverWait(driver, 10) \
-        .until(EC.presence_of_element_located((By.LINK_TEXT, field)))
-    driver.find_element(By.LINK_TEXT, field).click()
+    if field != "BATTING:":
+
+        # Navigate to statistics tab
+        WebDriverWait(driver, 10) \
+            .until(EC.element_to_be_clickable((By.LINK_TEXT, field)))
+        driver.find_element(By.LINK_TEXT, field).click()
 
     # Open data filter tab
-    time.sleep(2)
+    time.sleep(1)
     WebDriverWait(driver, 10) \
         .until(EC.element_to_be_clickable((By.CLASS_NAME, "btn-filter")))
     driver.find_element(By.CLASS_NAME, "btn-filter").click()
 
     # Edit minimum filter to equal one
-    time.sleep(2)
+    WebDriverWait(driver, 20) \
+        .until(EC.visibility_of_element_located((By.NAME, "commit")))
     WebDriverWait(driver, 10) \
         .until(EC.element_to_be_clickable((By.ID, "atleast")))
     driver.find_element(By.ID, "atleast").send_keys(Keys.BACKSPACE + '1')
@@ -191,7 +194,7 @@ def collect_outfield_data(driver, output_filename: str):
 
             # Return to previous page
             WebDriverWait(driver, 10) \
-                .until(EC.presence_of_element_located((By.LINK_TEXT, "Next")))
+                .until(EC.element_to_be_clickable((By.LINK_TEXT, "Next")))
             driver.find_element(By.LINK_TEXT, "Next").click()
 
         except BaseException:
@@ -236,11 +239,12 @@ def collect_batting_data(driver):
 
     # Iterate through each page to collect batting stats for the year
     scan_pages = True
+    rank = 1
     while scan_pages:
         try:
+            # Scrape high level summary of batting data
             summary_df, page_df = collect_table_data(driver, headers,
-                                                     summary_df)
-            time.sleep(1)
+                                                     summary_df, rank)
 
             # Iterate through each player and collect their batting data
             for player in page_df['PLAYER'].tolist():
@@ -250,10 +254,12 @@ def collect_batting_data(driver):
                     collect_individual_player_batting_data(driver, player,
                                                            batting_stats_df)
 
-            # Return to previous page
+            # Navigate to next page
             WebDriverWait(driver, 10) \
-                .until(EC.presence_of_element_located((By.LINK_TEXT, "Next")))
+                .until(EC.element_to_be_clickable((By.LINK_TEXT, "Next")))
             driver.find_element(By.LINK_TEXT, "Next").click()
+
+            rank = rank + 10
 
         except BaseException:
 
@@ -283,10 +289,12 @@ def collect_individual_player_batting_data(driver, player_name,
                                            batting_stats_df):
 
     # Open individual player batting stats
-    time.sleep(2)
     WebDriverWait(driver, 10) \
         .until(EC.element_to_be_clickable((By.LINK_TEXT, player_name)))
     driver.find_element(By.LINK_TEXT, player_name).click()
+
+    WebDriverWait(driver, 10) \
+        .until(EC.text_to_be_present_in_element((By.TAG_NAME, "h2"), 'PLAYER STATISTICS'))
 
     # Load page source
     page_source = driver.page_source
@@ -316,13 +324,16 @@ def collect_individual_player_batting_data(driver, player_name,
     batting_stats_df = batting_stats_df[batting_stats_df['SEASON'] == str(datetime.now().year)]
 
     # Return to previous page
-    time.sleep(2)
     driver.back()
 
     return batting_stats_df
 
 
-def collect_table_data(driver, columns, df):
+def collect_table_data(driver, columns, df, rank):
+
+    # Wait for page to render
+    WebDriverWait(driver, 10) \
+        .until(EC.text_to_be_present_in_element((By.CLASS_NAME, "tfont1"), str(rank)))
 
     # Collect page source code
     page_source = driver.page_source
