@@ -72,7 +72,7 @@ logger.info('Fielding Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Fielding Data...')
-driver, fielding_df = collect_outfield_data(driver, output_directory='data/',
+driver, fielding_df = collect_outfield_data(driver, output_directory=output_directory,
                                             output_filename='fielding_data.csv')
 logger.info('Summary of fielding data collected')
 
