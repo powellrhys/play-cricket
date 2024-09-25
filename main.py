@@ -53,7 +53,7 @@ logger.info('Batting Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Batting Data...')
-driver, batting_df = collect_batting_data(driver, output_directory='data/')
+driver, batting_df = collect_batting_data(driver, output_directory=output_directory)
 logger.info('Summary of batting data collected')
 
 # Query bowling data
@@ -62,7 +62,7 @@ logger.info('Bowling Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Bowling Data...')
-driver, bowling_df = collect_outfield_data(driver, output_directory='data/',
+driver, bowling_df = collect_outfield_data(driver, output_directory=output_directory,
                                            output_filename='bowling_data.csv')
 logger.info('Summary of bowling data collected')
 
