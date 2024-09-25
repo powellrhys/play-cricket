@@ -18,6 +18,7 @@ from datetime import datetime
 from io import StringIO
 import pandas as pd
 import smtplib
+import time
 import ssl
 
 
@@ -149,10 +150,18 @@ def query_data(driver, field: str = "BATTING"):
         .until(EC.presence_of_element_located((By.CLASS_NAME, "btn-filter")))
     driver.find_element(By.CLASS_NAME, "btn-filter").click()
 
+    time.sleep(2)
+
     # Edit minimum filter to equal one
     WebDriverWait(driver, 20) \
         .until(EC.presence_of_element_located((By.ID, "atleast")))
     driver.find_element(By.ID, "atleast").send_keys(Keys.BACKSPACE + '1')
+    time.sleep(2)
+
+    # # Edit minimum filter to equal one
+    # WebDriverWait(driver, 20) \
+    #     .until(EC.presence_of_element_located((By.ID, "atleast")))
+    # driver.find_element(By.ID, "atleast").send_keys(Keys.BACKSPACE + '1')
 
     # Update search parameters
     WebDriverWait(driver, 10) \
