@@ -33,6 +33,7 @@ driver_path = os.getenv('driver_path')
 email_sender = os.getenv('email_sender')
 email_password = os.getenv('email_password')
 email_reciever = os.getenv('email_reciever')
+output_directory = os.getenv('output_directory')
 
 # Configure Selenium Driver
 driver = configure_driver(driver_path, bool(headless))

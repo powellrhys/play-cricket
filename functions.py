@@ -167,7 +167,7 @@ def query_data(driver, field: str = "BATTING"):
     return driver
 
 
-def collect_outfield_data(driver, output_filename: str):
+def collect_outfield_data(driver, output_filename: str, output_directory: str):
 
     # Collect page source
     page_source = driver.page_source
@@ -209,12 +209,12 @@ def collect_outfield_data(driver, output_filename: str):
     summary_df = summary_df.reset_index().drop(columns=['index'])
 
     # Write data to csv file
-    summary_df.to_csv(f'data/{output_filename}', index=False)
+    summary_df.to_csv(f'{output_directory}{output_filename}', index=False)
 
     return driver, summary_df
 
 
-def collect_batting_data(driver):
+def collect_batting_data(driver, output_directory: str):
 
     # Collect page source
     page_source = driver.page_source
@@ -283,7 +283,7 @@ def collect_batting_data(driver):
                                   right_on='PLAYER', how='inner')
 
     # Write data to csv file
-    batting_df.to_csv('data/batting_data.csv', index=False)
+    batting_df.to_csv(f'{output_directory}batting_data.csv', index=False)
 
     return driver, batting_df
 
