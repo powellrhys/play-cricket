@@ -53,7 +53,7 @@ logger.info('Batting Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Batting Data...')
-driver, batting_df = collect_batting_data(driver)
+driver, batting_df = collect_batting_data(driver, output_directory='data/')
 logger.info('Summary of batting data collected')
 
 # Query bowling data
@@ -62,7 +62,8 @@ logger.info('Bowling Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Bowling Data...')
-driver, bowling_df = collect_outfield_data(driver, 'bowling_data.csv')
+driver, bowling_df = collect_outfield_data(driver, output_directory='data/',
+                                           output_filename='bowling_data.csv')
 logger.info('Summary of bowling data collected')
 
 # Query bowling data
@@ -71,7 +72,8 @@ logger.info('Fielding Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Fielding Data...')
-driver, fielding_df = collect_outfield_data(driver, 'fielding_data.csv')
+driver, fielding_df = collect_outfield_data(driver, output_directory='data/',
+                                            output_filename='fielding_data.csv')
 logger.info('Summary of fielding data collected')
 
 if os.getenv('to_email'):

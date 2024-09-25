@@ -167,7 +167,7 @@ def query_data(driver, field: str = "BATTING"):
     return driver
 
 
-def collect_outfield_data(driver, output_filename: str, output_directory: str):
+def collect_outfield_data(driver, output_directory: str, output_filename: str, ):
 
     # Collect page source
     page_source = driver.page_source
