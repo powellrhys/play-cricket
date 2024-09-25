@@ -126,8 +126,7 @@ def remove_cookies_pop_up(driver):
 
     # Remove cookies pop up
     WebDriverWait(driver, 10) \
-        .until(EC.presence_of_element_located(
-            (By.CLASS_NAME, "onetrust-close-btn-handler")))
+        .until(EC.presence_of_element_located((By.CLASS_NAME, "onetrust-close-btn-handler")))
     driver.find_element(By.CLASS_NAME, "onetrust-close-btn-handler").click()
 
     return driver
@@ -187,15 +186,19 @@ def collect_outfield_data(driver, output_filename: str):
 
     # Iterate through each page to collect batting stats for the year
     scan_pages = True
+    rank = 1
     while scan_pages:
         try:
+            # Scrape high level summary of outfield data
             summary_df, _ = collect_table_data(driver, headers,
-                                               summary_df)
+                                               summary_df, rank)
 
             # Return to previous page
             WebDriverWait(driver, 10) \
                 .until(EC.element_to_be_clickable((By.LINK_TEXT, "Next")))
             driver.find_element(By.LINK_TEXT, "Next").click()
+
+            rank = rank + 10
 
         except BaseException:
 
@@ -206,7 +209,7 @@ def collect_outfield_data(driver, output_filename: str):
     summary_df = summary_df.reset_index().drop(columns=['index'])
 
     # Write data to csv file
-    summary_df.to_csv(output_filename, index=False)
+    summary_df.to_csv(f'data/{output_filename}', index=False)
 
     return driver, summary_df
 
@@ -280,7 +283,7 @@ def collect_batting_data(driver):
                                   right_on='PLAYER', how='inner')
 
     # Write data to csv file
-    batting_df.to_csv('batting_data.csv', index=False)
+    batting_df.to_csv('data/batting_data.csv', index=False)
 
     return driver, batting_df
 

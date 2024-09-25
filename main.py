@@ -3,9 +3,14 @@ import warnings
 import logging
 import os
 
-from functions import configure_driver, login_to_play_cricket, \
-    remove_cookies_pop_up, query_data, collect_batting_data, \
-    collect_outfield_data, email_results
+from functions import \
+    query_data, \
+    email_results, \
+    configure_driver, \
+    collect_batting_data, \
+    login_to_play_cricket, \
+    remove_cookies_pop_up, \
+    collect_outfield_data
 
 # Ignore warnings
 warnings.filterwarnings("ignore")
