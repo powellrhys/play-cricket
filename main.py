@@ -3,9 +3,14 @@ import warnings
 import logging
 import os
 
-from functions import configure_driver, login_to_play_cricket, \
-    remove_cookies_pop_up, query_data, collect_batting_data, \
-    collect_outfield_data, email_results
+from functions import \
+    query_data, \
+    email_results, \
+    configure_driver, \
+    collect_batting_data, \
+    login_to_play_cricket, \
+    remove_cookies_pop_up, \
+    collect_outfield_data
 
 # Ignore warnings
 warnings.filterwarnings("ignore")
@@ -28,9 +33,10 @@ driver_path = os.getenv('driver_path')
 email_sender = os.getenv('email_sender')
 email_password = os.getenv('email_password')
 email_reciever = os.getenv('email_reciever')
+output_directory = os.getenv('output_directory')
 
 # Configure Selenium Driver
-driver = configure_driver(driver_path, headless)
+driver = configure_driver(driver_path, bool(headless))
 logger.info('Selenium Driver Configured')
 
 # Login to play cricket
@@ -47,7 +53,7 @@ logger.info('Batting Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Batting Data...')
-driver, batting_df = collect_batting_data(driver)
+driver, batting_df = collect_batting_data(driver, output_directory=output_directory)
 logger.info('Summary of batting data collected')
 
 # Query bowling data
@@ -56,7 +62,8 @@ logger.info('Bowling Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Bowling Data...')
-driver, bowling_df = collect_outfield_data(driver, 'bowling_data.csv')
+driver, bowling_df = collect_outfield_data(driver, output_directory=output_directory,
+                                           output_filename='bowling_data.csv')
 logger.info('Summary of bowling data collected')
 
 # Query bowling data
@@ -65,12 +72,15 @@ logger.info('Fielding Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Fielding Data...')
-driver, fielding_df = collect_outfield_data(driver, 'fielding_data.csv')
+driver, fielding_df = collect_outfield_data(driver, output_directory=output_directory,
+                                            output_filename='fielding_data.csv')
 logger.info('Summary of fielding data collected')
 
-logger.info('Emailing Results...')
-email_results(club, email_sender, email_password, email_reciever,
-              batting_df, bowling_df, fielding_df)
-logger.info('Results emailed')
+if os.getenv('to_email'):
+
+    logger.info('Emailing Results...')
+    email_results(club, email_sender, email_password, email_reciever,
+                  batting_df, bowling_df, fielding_df)
+    logger.info('Results emailed')
 
 driver.quit()
