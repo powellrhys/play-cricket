@@ -36,51 +36,66 @@ email_reciever = os.getenv('email_reciever')
 output_directory = os.getenv('output_directory')
 
 # Configure Selenium Driver
-driver = configure_driver(driver_path, bool(headless))
+driver = configure_driver(driver_path=driver_path,
+                          headless=bool(headless))
 logger.info('Selenium Driver Configured')
 
 # Login to play cricket
-driver = login_to_play_cricket(driver, club, email, password)
+driver = login_to_play_cricket(driver=driver,
+                               club=club,
+                               email=email,
+                               password=password)
 logger.info('Play Cricket Authentication Complete')
 
 # Disable cookies
-driver = remove_cookies_pop_up(driver)
+driver = remove_cookies_pop_up(driver=driver)
 logger.info('Cookie Disabled')
 
 # Query batting data
-driver = query_data(driver, 'BATTING')
+driver = query_data(driver=driver,
+                    field='BATTING')
 logger.info('Batting Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Batting Data...')
-driver, batting_df = collect_batting_data(driver, output_directory=output_directory)
+driver, batting_df = collect_batting_data(driver=driver,
+                                          output_directory=output_directory)
 logger.info('Summary of batting data collected')
 
 # Query bowling data
-driver = query_data(driver, 'BOWLING')
+driver = query_data(driver=driver,
+                    field='BOWLING')
 logger.info('Bowling Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Bowling Data...')
-driver, bowling_df = collect_outfield_data(driver, output_directory=output_directory,
+driver, bowling_df = collect_outfield_data(driver=driver,
+                                           output_directory=output_directory,
                                            output_filename='bowling_data.csv')
 logger.info('Summary of bowling data collected')
 
 # Query bowling data
-driver = query_data(driver, 'FIELDING')
+driver = query_data(driver=driver,
+                    field='FIELDING')
 logger.info('Fielding Query Executed')
 
 # Collect batting data
 logger.info('Collecting Summary of Fielding Data...')
-driver, fielding_df = collect_outfield_data(driver, output_directory=output_directory,
+driver, fielding_df = collect_outfield_data(driver=driver,
+                                            output_directory=output_directory,
                                             output_filename='fielding_data.csv')
 logger.info('Summary of fielding data collected')
 
 if os.getenv('to_email'):
 
     logger.info('Emailing Results...')
-    email_results(club, email_sender, email_password, email_reciever,
-                  batting_df, bowling_df, fielding_df)
+    email_results(club=club,
+                  email_sender=email_sender,
+                  email_password=email_password,
+                  email_reciever=email_reciever,
+                  batting_df=batting_df,
+                  bowling_df=bowling_df,
+                  fielding_df=fielding_df)
     logger.info('Results emailed')
 
 driver.quit()
