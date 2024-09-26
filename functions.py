@@ -1,5 +1,6 @@
 # Import Selenium dependencies
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -15,6 +16,7 @@ from email.mime.text import MIMEText
 # Import python dependencies
 from bs4 import BeautifulSoup
 from datetime import datetime
+from typing import Tuple
 from io import StringIO
 import pandas as pd
 import smtplib
@@ -22,7 +24,9 @@ import time
 import ssl
 
 
-def create_email_attachment(em, df, filename):
+def create_email_attachment(em: MIMEMultipart,
+                            df: pd.DataFrame,
+                            filename: str) -> MIMEMultipart:
 
     # Convert DataFrame to CSV
     csv_buffer = StringIO()
@@ -43,9 +47,9 @@ def email_results(club: str,
                   email_sender: str,
                   email_password: str,
                   email_reciever: str,
-                  batting_df,
-                  bowling_df,
-                  fielding_df):
+                  batting_df: pd.DataFrame,
+                  bowling_df: pd.DataFrame,
+                  fielding_df: pd.DataFrame) -> None:
 
     # Define email subject and body
     subject = f'{club.upper()} CC - Stats Update'
@@ -73,7 +77,7 @@ def email_results(club: str,
 
 
 def configure_driver(driver_path: str = 'chromedriver.exe',
-                     headless: bool = False):
+                     headless: bool = False) -> WebDriver:
 
     # Configure logging to suppress unwanted messages
     chrome_options = Options()
@@ -90,7 +94,10 @@ def configure_driver(driver_path: str = 'chromedriver.exe',
     return driver
 
 
-def login_to_play_cricket(driver, club, email, password):
+def login_to_play_cricket(driver: WebDriver,
+                          club: str,
+                          email: str,
+                          password: str) -> WebDriver:
 
     # Open chrome on specific play cricket club
     driver.get(f"http://{club}.play-cricket.com/users/sign_in")
@@ -122,7 +129,7 @@ def login_to_play_cricket(driver, club, email, password):
     return driver
 
 
-def remove_cookies_pop_up(driver):
+def remove_cookies_pop_up(driver: WebDriver) -> WebDriver:
 
     # Remove cookies pop up
     WebDriverWait(driver, 10) \
@@ -132,7 +139,8 @@ def remove_cookies_pop_up(driver):
     return driver
 
 
-def query_data(driver, field: str = "BATTING"):
+def query_data(driver: WebDriver,
+               field: str = "BATTING") -> WebDriver:
 
     # Navigate to statistics tab
     WebDriverWait(driver, 10) \
@@ -167,7 +175,9 @@ def query_data(driver, field: str = "BATTING"):
     return driver
 
 
-def collect_outfield_data(driver, output_directory: str, output_filename: str, ):
+def collect_outfield_data(driver: WebDriver,
+                          output_directory: str,
+                          output_filename: str) -> Tuple[WebDriver, pd.DataFrame]:
 
     # Collect page source
     page_source = driver.page_source
@@ -214,7 +224,8 @@ def collect_outfield_data(driver, output_directory: str, output_filename: str, )
     return driver, summary_df
 
 
-def collect_batting_data(driver, output_directory: str):
+def collect_batting_data(driver: WebDriver,
+                         output_directory: str) -> Tuple[WebDriver, pd.DataFrame]:
 
     # Collect page source
     page_source = driver.page_source
@@ -288,8 +299,9 @@ def collect_batting_data(driver, output_directory: str):
     return driver, batting_df
 
 
-def collect_individual_player_batting_data(driver, player_name,
-                                           batting_stats_df):
+def collect_individual_player_batting_data(driver: WebDriver,
+                                           player_name: str,
+                                           batting_stats_df: pd.DataFrame) -> pd.DataFrame:
 
     # Open individual player batting stats
     WebDriverWait(driver, 10) \
@@ -332,7 +344,10 @@ def collect_individual_player_batting_data(driver, player_name,
     return batting_stats_df
 
 
-def collect_table_data(driver, columns, df, rank):
+def collect_table_data(driver: WebDriver,
+                       columns: list,
+                       df: pd.DataFrame,
+                       rank: int) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     # Wait for page to render
     WebDriverWait(driver, 10) \
