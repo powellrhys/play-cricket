@@ -9,6 +9,8 @@ on:
     branches:
       - main
       - feature/*
+  schedule:
+    - cron: '0 0 * 4-9 3'
 
 jobs:
   scrape-data:
