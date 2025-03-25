@@ -14,69 +14,6 @@ from typing import Tuple
 import pandas as pd
 import time
 
-def configure_driver(driver_path: str = 'chromedriver.exe',
-                     headless: bool = False) -> WebDriver:
-
-    # Configure logging to suppress unwanted messages
-    chrome_options = Options()
-    chrome_options.add_argument("--log-level=3")
-
-    if headless:
-        chrome_options.add_argument("--headless")
-
-    # Configure Driver with options
-    service = Service(executable_path=driver_path)
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-    driver.maximize_window()
-
-    return driver
-
-
-def login_to_play_cricket(driver: WebDriver,
-                          club: str,
-                          email: str,
-                          password: str) -> WebDriver:
-
-    # Open chrome on specific play cricket club
-    driver.get(f"http://{club}.play-cricket.com/users/sign_in")
-
-    # Enter Password into login form
-    WebDriverWait(driver, 10) \
-        .until(EC.presence_of_element_located((By.ID, 'password')))
-    driver.find_element(By.ID, 'password').send_keys(password)
-
-    # Enter email into login form
-    WebDriverWait(driver, 10) \
-        .until(EC.presence_of_element_located((By.ID, 'email')))
-    driver.find_element(By.ID, 'email').send_keys(email)
-
-    # Click Login button
-    i = 0
-    while i < 5:
-        try:
-            # Click Submit on login form
-            WebDriverWait(driver, 10) \
-                .until(EC.presence_of_element_located((By.CLASS_NAME, "sc-bBHwJV")))
-            driver.find_element(By.CLASS_NAME, "sc-bBHwJV").click()
-
-        except BaseException:
-            pass
-
-        i = i + 1
-
-    return driver
-
-
-def remove_cookies_pop_up(driver: WebDriver) -> WebDriver:
-
-    # Remove cookies pop up
-    WebDriverWait(driver, 10) \
-        .until(EC.presence_of_element_located((By.CLASS_NAME, "onetrust-close-btn-handler")))
-    driver.find_element(By.CLASS_NAME, "onetrust-close-btn-handler").click()
-
-    return driver
-
-
 def query_data(driver: WebDriver,
                field: str = "BATTING") -> WebDriver:
 
