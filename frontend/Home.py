@@ -15,5 +15,4 @@ if not st.experimental_user.is_logged_in:
     st.login('auth0')
 
 if st.experimental_user.is_logged_in:
-    st.title('Home') 
-
+    st.title('Home')
