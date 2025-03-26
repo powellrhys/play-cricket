@@ -13,14 +13,7 @@ from functions.setup_functions import (
 
 # Import statistics functions
 from functions.statistics_functions import (
-    query_data
-)
-
-# Import 
-from functions.old_functions import (
-    collect_outfield_data,
-    collect_batting_data,
-    query_data,
+    collect_player_statistics_data
 )
 
 # Import result functions
@@ -55,55 +48,51 @@ logger.info('Play Cricket Authentication Complete')
 driver = remove_cookies_pop_up(driver=driver)
 logger.info('Cookie Disabled')
 
-# # Query batting data
-# driver = query_data(driver=driver,
-#                     field='BATTING')
-# logger.info('Batting Query Executed')
+# Collect batting data
+logger.info('Collecting Summary of Batting Data...')
+driver, batting_summary_df, batting_df, batting_dismissal_df = collect_player_statistics_data(driver=driver,
+                                                                                              field='BATTING')
+logger.info('Summary of batting data collected\n')
 
-# # Collect batting data
-# logger.info('Collecting Summary of Batting Data...')
-# driver, batting_df = collect_batting_data(driver=driver,
-#                                           output_directory=output_directory)
-# logger.info('Summary of batting data collected')
+batting_df.to_csv('data/batting_data.csv', index=False)
+batting_dismissal_df.to_csv('data/batting_how_out.csv', index=False)
 
-# # Query bowling data
-# driver = query_data(driver=driver,
-#                     field='BOWLING')
-# logger.info('Bowling Query Executed')
+# Collect bowling data
+logger.info('Collecting Summary of Bowling Data...')
+driver, bowling_summary_df, bowling_df, bowling_dismissal_df = collect_player_statistics_data(driver=driver,
+                                                                                              field='BOWLING')
+logger.info('Summary of bowling data collected\n')
 
-# # Collect batting data
-# logger.info('Collecting Summary of Bowling Data...')
-# driver, bowling_df = collect_outfield_data(driver=driver,
-#                                            output_directory=output_directory,
-#                                            output_filename='bowling_data.csv')
-# logger.info('Summary of bowling data collected')
+bowling_df.to_csv('data/bowling_data.csv', index=False)
+bowling_dismissal_df.to_csv('data/bowling_dismissals.csv', index=False)
 
-# # Query bowling data
-# driver = query_data(driver=driver,
-#                     field='FIELDING')
-# logger.info('Fielding Query Executed')
+# Collect fielding data
+logger.info('Collecting Summary of Bowling Data...')
+driver, fielding_summary_df, _, _ = collect_player_statistics_data(driver=driver,
+                                                                   field='FIELDING')
+logger.info('Summary of bowling data collected\n')
 
-# # Collect batting data
-# logger.info('Collecting Summary of Fielding Data...')
-# driver, fielding_df = collect_outfield_data(driver=driver,
-#                                             output_directory=output_directory,
-#                                             output_filename='fielding_data.csv')
-# logger.info('Summary of fielding data collected')
+bowling_df.to_csv('data/fielding_data.csv', index=False)
 
 
 # Collect match report ids
+logger.info('Collecting Match report ids...')
 driver, match_report_ids = collect_match_report_ids(
-    driver=driver,
-    club=vars.club
-)
-
-# Analyse match reports to collect bowling data
-driver, bowling_stats, logger = analyse_match_reports(
     logger=logger,
     driver=driver,
-    result_ids=match_report_ids,
     club=vars.club
 )
+logger.info('All match report ids collected\n')
+
+# Analyse match reports to collect bowling data
+logger.info('Analysing match reports')
+driver, match_report_bowling_data, logger = analyse_match_reports(logger=logger,
+                                                                  driver=driver,
+                                                                  result_ids=match_report_ids,
+                                                                  club=vars.club)
+logger.info('Match report analysis completed\n')
 
 # Write data to csv file
-bowling_stats.to_csv('data/bowling_stats.csv', index=False)
+match_report_bowling_data.to_csv('data/bowling_match_data.csv', index=False)
+
+driver.close()

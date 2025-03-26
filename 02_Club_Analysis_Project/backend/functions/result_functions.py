@@ -12,62 +12,67 @@ import logging
 
 
 def collect_match_report_ids(
+    logger: logging.Logger,
     driver: WebDriver,
     club: str
 ) -> tuple[WebDriver, list]:
     """
     """
-    # Open chrome on specific play cricket club
-    driver.get(f"http://{club}.play-cricket.com/Matches?tab=Result")
+    try:
+        # Open chrome on specific play cricket club
+        driver.get(f"http://{club}.play-cricket.com/Matches?tab=Result")
 
-    # Locate the dropdown element
-    dropdown = Select(driver.find_element(By.ID, "view_by"))
+        # Locate the dropdown element
+        dropdown = Select(driver.find_element(By.ID, "view_by"))
 
-    # Select the "By Year" option by value
-    dropdown.select_by_value("year")
+        # Select the "By Year" option by value
+        dropdown.select_by_value("year")
 
-    # Locate the dropdown element
-    dropdown = Select(driver.find_element(By.ID, "team_id"))
+        # Locate the dropdown element
+        dropdown = Select(driver.find_element(By.ID, "team_id"))
 
-    # Select "1st XI" by its value
-    dropdown.select_by_visible_text("1st XI")
+        # Select "1st XI" by its value
+        dropdown.select_by_visible_text("1st XI")
 
-    # Generate a list of years from this year to 5 years ago
-    years = [str(datetime.now().year - i) for i in range(2)]
-    years.reverse()
-
-    # Locate the dropdown by its ID
-    dropdown_element = driver.find_element(By.ID, "season_id")
-    dropdown = Select(dropdown_element)
-
-    # Create a dictionary mapping inner text to values
-    option_map = {option.get_attribute("innerText").split(' ')[-1].strip(): option.get_attribute("value")
-                  for option in dropdown.options}
-
-    # Iterate through seasons and fetch match report ids
-    result_ids = []
-    for year in years:
+        # Generate a list of years from this year to 5 years ago
+        years = [str(datetime.now().year - i) for i in range(5)]
+        years.reverse()
 
         # Locate the dropdown by its ID
         dropdown_element = driver.find_element(By.ID, "season_id")
         dropdown = Select(dropdown_element)
 
-        # Select reports from variable year
-        driver.execute_script("arguments[0].value = arguments[1]; arguments[0].dispatchEvent(new Event('change'));",
-                              dropdown_element,
-                              str(option_map[year]))
+        # Create a dictionary mapping inner text to values
+        option_map = {option.get_attribute("innerText").split(' ')[-1].strip(): option.get_attribute("value")
+                      for option in dropdown.options}
 
-        # Find all result links
-        result_links = driver.find_elements(By.CLASS_NAME, "link-scorecard")
+        # Iterate through seasons and fetch match report ids
+        result_ids = []
+        for year in years:
 
-        # Extract result IDs from the href attributes
-        yearly_result_ids = [link.get_attribute("href").split("/")[-1] for link in result_links]
+            # Locate the dropdown by its ID
+            dropdown_element = driver.find_element(By.ID, "season_id")
+            dropdown = Select(dropdown_element)
 
-        # Collect unique yearly result ids
-        yearly_result_ids = list(set(yearly_result_ids))
+            # Select reports from variable year
+            driver.execute_script("arguments[0].value = arguments[1]; arguments[0].dispatchEvent(new Event('change'));",
+                                  dropdown_element,
+                                  str(option_map[year]))
 
-        # Append yearly ids to result ids list
-        result_ids.extend(yearly_result_ids)
+            # Find all result links
+            result_links = driver.find_elements(By.CLASS_NAME, "link-scorecard")
+
+            # Extract result IDs from the href attributes
+            yearly_result_ids = [link.get_attribute("href").split("/")[-1] for link in result_links]
+
+            # Collect unique yearly result ids
+            yearly_result_ids = list(set(yearly_result_ids))
+
+            # Append yearly ids to result ids list
+            result_ids.extend(yearly_result_ids)
+
+    except BaseException:
+        logger.error('Failed to collect match report ids')
 
     return driver, result_ids
 
@@ -85,32 +90,37 @@ def analyse_match_reports(
 
     # Iterate through match reports
     for index, result_id in enumerate(result_ids, start=1):
+        try:
+            # Navigate to match report
+            driver.get(f"https://{club}.play-cricket.com/website/results/{result_id}")
 
-        # Navigate to match report
-        driver.get(f"https://{club}.play-cricket.com/website/results/{result_id}")
+            # Find all elements with class 'team-name'
+            team_elements = driver.find_elements(By.CLASS_NAME, "team-name")
 
-        # Find all elements with class 'team-name'
-        team_elements = driver.find_elements(By.CLASS_NAME, "team-name")
+            # Identify whether game was home or away
+            venue = [element.text for element in team_elements][0]
+            if club.capitalize() not in venue:
+                home_or_away = 'Away'
+            else:
+                home_or_away = 'Home'
 
-        # Identify whether game was home or away
-        venue = [element.text for element in team_elements][0]
-        if club.capitalize() not in venue:
-            home_or_away = 'Away'
-        else:
-            home_or_away = 'Home'
+            # Identify opponent club
+            opponent = list(set([element.text for element in team_elements
+                                if element.text != f'{club.capitalize()} CC' and element.text != '']))[0]
 
-        # Identify opponent club
-        opponent = list(set([element.text for element in team_elements
-                             if element.text != f'{club.capitalize()} CC' and element.text != '']))[0]
+            # Find the div with class 'leaguedetail-right'
+            fixture_detail = driver.find_element(By.CLASS_NAME, "leaguedetail-right")
 
-        # Find the div with class 'leaguedetail-right'
-        fixture_detail = driver.find_element(By.CLASS_NAME, "leaguedetail-right")
+            # Extract text
+            fixture_date = fixture_detail.text.split('@')[0].strip()
 
-        # Extract text
-        fixture_date = fixture_detail.text.split('@')[0].strip()
+            logger.info(f'{index}/{len(result_ids)}: Analysing match against {opponent} '
+                        f'({home_or_away[0]}) - {fixture_date}...')
 
-        logger.info(f'{index}/{len(result_ids)}: Analysing match against {opponent} '
-                    f'({home_or_away[0]}) - {fixture_date}...')
+        except BaseException:
+            logger.error(f'Failed to Collect match report metadata from report id - {result_id}`n')
+            continue
+
         try:
             # Wait for the SCORECARD tab to be visible and clickable
             scorecard_tab = WebDriverWait(driver, 10).until(
@@ -121,7 +131,7 @@ def analyse_match_reports(
             scorecard_tab.click()
 
         except BaseException:
-            logger.error(f'Failed to collect data for {fixture_date} - {opponent} ({home_or_away})\n')
+            logger.error(f'Failed to collect data for {fixture_date} - {opponent} ({home_or_away[0]})\n')
             continue
 
         try:
@@ -136,8 +146,9 @@ def analyse_match_reports(
                     li.click()
                     break
 
-        except Exception as e:
-            logger.error(f"Failed to collect bowling data - {e}")
+        except Exception:
+            logger.error(f"Failed to collect bowling data for {fixture_date} - {opponent} ({home_or_away[0]})\n")
+            continue
 
         # Find all tables with class "bowler-detail"
         tables = driver.find_elements(By.CLASS_NAME, "bowler-detail")
