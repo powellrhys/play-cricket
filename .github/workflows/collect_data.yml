@@ -61,4 +61,4 @@ jobs:
           headless: True
           driver_path: '/usr/bin/chromedriver'
         run: |
-          python main.py
+          python 01_Season_Summary_Project/main.py
