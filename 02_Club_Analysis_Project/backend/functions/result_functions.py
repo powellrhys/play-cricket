@@ -118,7 +118,7 @@ def analyse_match_reports(
                         f'({home_or_away[0]}) - {fixture_date}...')
 
         except BaseException:
-            logger.error(f'Failed to Collect match report metadata from report id - {result_id}`n')
+            logger.error(f'Failed to Collect match report metadata from report id - {result_id}\n')
             continue
 
         try:

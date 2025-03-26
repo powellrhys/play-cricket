@@ -290,6 +290,7 @@ def collect_player_statistics_data(
             driver.find_element(By.LINK_TEXT, "Next").click()
 
             rank = rank + 10
+            break
 
         except BaseException as e:
             print(e)

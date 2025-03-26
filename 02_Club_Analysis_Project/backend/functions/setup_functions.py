@@ -71,32 +71,45 @@ def login_to_play_cricket(
 ) -> WebDriver:
     """
     """
-    # Open chrome on specific play cricket club
-    driver.get(f"http://{club}.play-cricket.com/users/sign_in")
+    for _ in range(10):
+        # Open chrome on specific play cricket club
+        driver.get(f"http://{club}.play-cricket.com/users/sign_in")
 
-    # Enter Password into login form
-    WebDriverWait(driver, 10) \
-        .until(EC.presence_of_element_located((By.ID, 'password')))
-    driver.find_element(By.ID, 'password').send_keys(password)
+        # Enter Password into login form
+        WebDriverWait(driver, 10) \
+            .until(EC.presence_of_element_located((By.ID, 'password')))
+        driver.find_element(By.ID, 'password').send_keys(password)
 
-    # Enter email into login form
-    WebDriverWait(driver, 10) \
-        .until(EC.presence_of_element_located((By.ID, 'email')))
-    driver.find_element(By.ID, 'email').send_keys(email)
+        # Enter email into login form
+        WebDriverWait(driver, 10) \
+            .until(EC.presence_of_element_located((By.ID, 'email')))
+        driver.find_element(By.ID, 'email').send_keys(email)
 
-    # Click Login button
-    i = 0
-    while i < 5:
-        try:
-            # Click Submit on login form
-            WebDriverWait(driver, 10) \
-                .until(EC.presence_of_element_located((By.CLASS_NAME, "sc-bBHwJV")))
-            driver.find_element(By.CLASS_NAME, "sc-bBHwJV").click()
+        # Click Login button
+        i = 0
+        while i < 5:
+            try:
+                # Click Submit on login form
+                WebDriverWait(driver, 10) \
+                    .until(EC.presence_of_element_located((By.CLASS_NAME, "sc-bBHwJV")))
+                driver.find_element(By.CLASS_NAME, "sc-bBHwJV").click()
 
-        except BaseException:
-            pass
+            except BaseException:
+                pass
 
-        i = i + 1
+            i = i + 1
+
+        # Get all elements with class "mr-10"
+        elements = driver.find_elements(By.CLASS_NAME, "mr-10")
+
+        success = False
+        for element in elements:
+            if club.upper() in element.text:
+                success = True
+                break  # Stop checking once found
+
+        if success:
+            break
 
     return driver
 
