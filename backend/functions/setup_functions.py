@@ -40,6 +40,7 @@ class Variables:
         self.email_password = os.getenv('email_password')
         self.email_reciever = os.getenv('email_reciever')
         self.output_directory = os.getenv('output_directory')
+        self.blob_connection_string = os.getenv('blob_connection_string')
 
 
 def configure_driver(

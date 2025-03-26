@@ -22,6 +22,11 @@ from functions.result_functions import (
     analyse_match_reports
 )
 
+# Import data functions
+from functions.data_functions import (
+    write_df_to_blob
+)
+
 # Ignore warnings
 warnings.filterwarnings("ignore")
 
@@ -54,8 +59,17 @@ driver, batting_summary_df, batting_df, batting_dismissal_df = collect_player_st
                                                                                               field='BATTING')
 logger.info('Summary of batting data collected\n')
 
-batting_df.to_csv('data/batting_data.csv', index=False)
-batting_dismissal_df.to_csv('data/batting_how_out.csv', index=False)
+# Write batting data to blob storage
+logger.info('Writing batting data to blob storage account...')
+write_df_to_blob(df=batting_df,
+                 connection_string=vars.blob_connection_string,
+                 container_name='play-cricket',
+                 blob_name='batting_data.csv')
+write_df_to_blob(df=batting_dismissal_df,
+                 connection_string=vars.blob_connection_string,
+                 container_name='play-cricket',
+                 blob_name='batting_how_out.csv')
+logger.info('Batting data written to blob\n')
 
 # Collect bowling data
 logger.info('Collecting Summary of Bowling Data...')
@@ -63,8 +77,17 @@ driver, bowling_summary_df, bowling_df, bowling_dismissal_df = collect_player_st
                                                                                               field='BOWLING')
 logger.info('Summary of bowling data collected\n')
 
-bowling_df.to_csv('data/bowling_data.csv', index=False)
-bowling_dismissal_df.to_csv('data/bowling_dismissals.csv', index=False)
+# Write bowling data to blob storage
+logger.info('Writing bowling data to blob storage account...')
+write_df_to_blob(df=bowling_df,
+                 connection_string=vars.blob_connection_string,
+                 container_name='play-cricket',
+                 blob_name='bowling_data.csv')
+write_df_to_blob(df=bowling_dismissal_df,
+                 connection_string=vars.blob_connection_string,
+                 container_name='play-cricket',
+                 blob_name='bowling_dismissals.csv')
+logger.info('Bowling data written to blob\n')
 
 # Collect fielding data
 logger.info('Collecting Summary of Bowling Data...')
@@ -72,8 +95,13 @@ driver, fielding_summary_df, _, _ = collect_player_statistics_data(driver=driver
                                                                    field='FIELDING')
 logger.info('Summary of bowling data collected\n')
 
-bowling_df.to_csv('data/fielding_data.csv', index=False)
-
+# Write fielding data to blob storage
+logger.info('Writing fielding data to blob storage account...')
+write_df_to_blob(df=fielding_summary_df,
+                 connection_string=vars.blob_connection_string,
+                 container_name='play-cricket',
+                 blob_name='fielding_data.csv')
+logger.info('Fielding data written to blob\n')
 
 # Collect match report ids
 logger.info('Collecting Match report ids...')
@@ -92,7 +120,12 @@ driver, match_report_bowling_data, logger = analyse_match_reports(logger=logger,
                                                                   club=vars.club)
 logger.info('Match report analysis completed\n')
 
-# Write data to csv file
-match_report_bowling_data.to_csv('data/bowling_match_data.csv', index=False)
+# Write match report bowling data to blob storage
+logger.info('Writing match report bowling data to blob storage account...')
+write_df_to_blob(df=match_report_bowling_data,
+                 connection_string=vars.blob_connection_string,
+                 container_name='play-cricket',
+                 blob_name='bowling_match_data.csv')
+logger.info('Match report bowling data written to blob\n')
 
 driver.close()

@@ -166,3 +166,6 @@ dist-ssr
 
 # CSV
 *.csv
+
+# Secrets.toml
+secrets.toml
