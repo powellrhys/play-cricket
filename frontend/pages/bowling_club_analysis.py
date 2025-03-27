@@ -39,13 +39,18 @@ if st.experimental_user.is_logged_in:
                                                container_name='play-cricket',
                                                blob_name='bowling_match_data.csv')
 
+    dismissal_data_df = read_csv_from_blob(connection_string=vars.blob_connection_string,
+                                           container_name='play-cricket',
+                                           blob_name='bowling_dismissals.csv')
+
     bowling_match_data_df['DATE'] = pd.to_datetime(bowling_match_data_df['DATE'])
     bowling_match_data_df['SEASON'] = bowling_match_data_df['DATE'].dt.year
 
     seasons_overs = bowling_data_df['SEASON'].unique()
     seasons_extras = bowling_match_data_df['SEASON'].unique()
+    seasons_dismissals = dismissal_data_df['SEASON'].unique()
 
-    tab1, tab2 = st.tabs(tabs=['Bowling Effectiveness', 'Extras Analysis'])
+    tab1, tab2, tab3 = st.tabs(tabs=['Bowling Effectiveness', 'Extras Analysis', 'Wicket Taking'])
 
     with tab1:
 
@@ -72,6 +77,9 @@ if st.experimental_user.is_logged_in:
                          y=metric_overs,
                          hover_name='PLAYER',
                          trendline='ols')
+
+        # Set all points to color #316151
+        fig.update_traces(marker=dict(color='#316151'))
 
         st.plotly_chart(fig)
 
@@ -141,6 +149,7 @@ if st.experimental_user.is_logged_in:
             barmode='group',
             title=f"{y_axis_label} Conceded by Bowlers at Different Venues",
             labels={'METRIC': y_axis_label},
+            color_discrete_map={'Home': '#316151', 'Away': '#FFE31A'},
             hover_name='BOWLER',
             hover_data={
                 'BALLS': True,
@@ -148,4 +157,40 @@ if st.experimental_user.is_logged_in:
             }
         )
         st.plotly_chart(fig)
-        # st.dataframe(bowling_match_data_df)
+
+    with tab3:
+
+        col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
+
+        with col1:
+
+            season_wickets = st.selectbox(label='Season',
+                                          options=seasons_dismissals,
+                                          key='selectbox-wicket')
+
+        dismissal_data_df = dismissal_data_df[dismissal_data_df['SEASON'] == season_wickets]
+
+        dismissal_data_df = dismissal_data_df \
+            .groupby('SEASON', as_index=False)[['BOWLED', 'CAUGHT', 'LBW', 'STUMPED', 'HIT ROOF']].sum()
+
+        # Summing across seasons to get total dismissals per category
+        dismissal_data_df = dismissal_data_df.drop(columns=['SEASON']).sum().reset_index()
+        dismissal_data_df.columns = ['Dismissal Type', 'Count']
+
+        # Create pie chart
+        fig = px.pie(
+            dismissal_data_df,
+            names='Dismissal Type',
+            values='Count',
+            color='Dismissal Type',
+            title="Total Dismissals by Type",
+            color_discrete_map={
+                'BOWLED': '#316151',   # Dark Green
+                'CAUGHT': '#FFE31A',   # Bright Yellow
+                'LBW': '#A63D40',  # Deep Red
+                'STUMPED': '#6495ED',    # Cornflower Blue
+                'Hit ROOF': '#D2B48C'    # Tan/Brown
+            }
+        )
+
+        st.plotly_chart(fig)
