@@ -3,7 +3,6 @@ from azure.storage.blob import BlobServiceClient
 import streamlit as st
 import pandas as pd
 import io
-import os
 
 class Variables:
     """

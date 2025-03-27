@@ -107,7 +107,7 @@ def login_to_play_cricket(
         for element in elements:
             if club.upper() in element.text:
                 success = True
-                break  # Stop checking once found
+                break
 
         if success:
             break

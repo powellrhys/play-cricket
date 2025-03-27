@@ -49,15 +49,11 @@ jobs:
           chromedriver --version
 
       # Run Python Script
-      - name: Run Python scrape script
+      - name: Run Python data collection script
         env:
           club: ${{ secrets.club }}
           email: ${{ secrets.email }}
           password: ${{ secrets.password }}
-          email_sender: ${{ secrets.email_sender }}
-          email_password: ${{ secrets.email_password }}
-          email_reciever: ${{ secrets.email_reciever }}
-          to_email: True
           headless: True
           driver_path: '/usr/bin/chromedriver'
           blob_connection_string: ${{ secrets.blob_connection_string }}
