@@ -11,6 +11,7 @@ class Variables:
 
         # Collect environmental variables
         self.blob_connection_string = os.getenv('blob_connection_string')
+        self.club = os.getenv('club')
 
 
 def read_csv_from_blob(
@@ -34,3 +35,21 @@ def read_csv_from_blob(
     df = pd.read_csv(io.StringIO(csv_content))
 
     return df
+
+
+def list_blob_files(
+    connectio_string: str,
+    container_name
+) -> list:
+    """
+    """
+    # Create BlobServiceClient
+    blob_service_client = BlobServiceClient.from_connection_string(connectio_string)
+
+    # Get ContainerClient
+    container_client = blob_service_client.get_container_client(container_name)
+
+    # List blobs in container
+    blob_files = [file['name'] for file in container_client.list_blobs()]
+
+    return blob_files
