@@ -2,17 +2,22 @@
 from dotenv import load_dotenv
 import streamlit as st
 
-# Import data functions
 from functions.data_functions import (
     Variables
+)
+
+from functions.navigation import (
+    get_navigation
 )
 
 # Load environment variables
 load_dotenv()
 vars = Variables()
 
+# Ensure user is authenticated to use application
 if not st.experimental_user.is_logged_in:
     st.login('auth0')
 
 if st.experimental_user.is_logged_in:
-    st.title('Home')
+    pg = get_navigation(club=vars.club)
+    pg.run()
