@@ -1,5 +1,6 @@
 # Import python dependencies
 from azure.storage.blob import BlobServiceClient
+import streamlit as st
 import pandas as pd
 import io
 import os
@@ -10,8 +11,8 @@ class Variables:
     def __init__(self):
 
         # Collect environmental variables
-        self.blob_connection_string = os.getenv('blob_connection_string')
-        self.club = os.getenv('club')
+        self.blob_connection_string = st.secrets['general']['blob_connection_string']
+        self.club = st.secrets['general']['club']
 
 
 def read_csv_from_blob(
