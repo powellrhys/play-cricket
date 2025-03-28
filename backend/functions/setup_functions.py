@@ -34,12 +34,8 @@ class Variables:
         self.club = os.getenv('club')
         self.email = os.getenv('email')
         self.password = os.getenv('password')
-        self.headless = os.getenv('headless')
+        self.headless = eval(os.getenv('headless'))
         self.driver_path = os.getenv('driver_path')
-        self.email_sender = os.getenv('email_sender')
-        self.email_password = os.getenv('email_password')
-        self.email_reciever = os.getenv('email_reciever')
-        self.output_directory = os.getenv('output_directory')
         self.blob_connection_string = os.getenv('blob_connection_string')
 
 

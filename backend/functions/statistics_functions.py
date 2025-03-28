@@ -246,7 +246,7 @@ def collect_player_statistics_data(
         # Define individual bowling stats columns headers
         metric_columns = ['SEASON', 'OVERS', 'MAIDENS', 'RUNS', 'WICKETS',
                           'BEST BOWLING', '5 WICKET HAUL', 'ECONOMY RATE',
-                          'STRIKE RATE', 'AVERAGE', '%TEAM WICKETS']
+                          'STRIKE RATE', 'AVERAGE', '%TEAM WICKETS', 'PLAYER']
 
         dismissal_columns = ['SEASON', 'BOWLED', 'CAUGHT', 'LBW', 'STUMPED', 'HIT ROOF']
 
@@ -291,6 +291,7 @@ def collect_player_statistics_data(
                                                        dismissal_df=dismissal_df,
                                                        field=field,
                                                        logger=logger)
+
             try:
                 # Return to previous page
                 WebDriverWait(driver, 10) \

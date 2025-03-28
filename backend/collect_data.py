@@ -155,4 +155,4 @@ try:
 except BaseException as e:
     logger.error(f'Failed to collect and export bowling match report data data - {e}\n')
 
-# driver.close()
+driver.close()
