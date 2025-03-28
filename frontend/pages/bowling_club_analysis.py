@@ -112,7 +112,7 @@ if st.experimental_user.is_logged_in:
                                         selection_mode='single',
                                         default=False,
                                         key='pills-extras-normalise')
-            
+
         data_source_badge(blob_connection_string=vars.blob_connection_string,
                           file_name='bowling_match_data.csv')
 
@@ -174,7 +174,7 @@ if st.experimental_user.is_logged_in:
             season_wickets = st.selectbox(label='Season',
                                           options=seasons_dismissals,
                                           key='selectbox-wicket')
-            
+
         data_source_badge(blob_connection_string=vars.blob_connection_string,
                           file_name='bowling_dismissals.csv')
 

@@ -44,7 +44,7 @@ def collect_match_report_ids(
         dropdown.select_by_visible_text("1st XI")
 
         # Generate a list of years from this year to 5 years ago
-        years = [str(datetime.now().year - i) for i in range(2)]
+        years = [str(datetime.now().year - i) for i in range(6)]
         years.reverse()
 
         # Locate the dropdown by its ID
