@@ -215,4 +215,10 @@ def filter_reports_by_bowlers(
     # Filter match report data based on recent club bowlers
     match_report_bowling_data = match_report_bowling_data[match_report_bowling_data['BOWLER'].isin(bowlers)]
 
+    # Convert only 'date_column' to datetime, invalid dates become NaT
+    match_report_bowling_data['DATE'] = pd.to_datetime(match_report_bowling_data['DATE'], errors='coerce')
+
+    # Drop rows where 'date_column' is NaT
+    match_report_bowling_data = match_report_bowling_data.dropna(subset=['DATE'])
+
     return match_report_bowling_data

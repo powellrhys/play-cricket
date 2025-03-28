@@ -31,8 +31,8 @@ if st.experimental_user.is_logged_in:
     st.title('Extract Club Data')
 
     # List all files in blob container
-    files = list_blob_files(connectio_string=vars.blob_connection_string,
-                            container_name='play-cricket')
+    files, _ = list_blob_files(connection_string=vars.blob_connection_string,
+                               container_name='play-cricket')
 
     col1, col2 = st.columns([2, 3])
 

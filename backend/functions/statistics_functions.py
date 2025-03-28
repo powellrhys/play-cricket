@@ -257,7 +257,6 @@ def collect_player_statistics_data(
     dismissal_df = pd.DataFrame(columns=dismissal_columns)
 
     # Iterate through each page to collect batting stats for the year
-    # scan_pages = True
     rank = 1
     while True:
         try:
