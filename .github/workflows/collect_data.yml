@@ -54,7 +54,7 @@ jobs:
           club: ${{ secrets.club }}
           email: ${{ secrets.email }}
           password: ${{ secrets.password }}
-          headless: True
+          headless: 'True'
           driver_path: '/usr/bin/chromedriver'
           blob_connection_string: ${{ secrets.blob_connection_string }}
         run: |
