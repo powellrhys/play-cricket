@@ -1,6 +1,7 @@
 # Import Selenium dependencies
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -9,6 +10,7 @@ from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 from typing import Tuple
 import pandas as pd
+import logging
 import time
 
 
@@ -145,10 +147,14 @@ def collect_individual_player_data(
     player_name: str,
     player_stats_df: pd.DataFrame,
     dismissal_df: pd.DataFrame,
-    field: str
+    field: str,
+    logger: logging.Logger
 ) -> pd.DataFrame:
     """
     """
+    # Log which player we're collecting data for
+    logger.info(f'Collecting {field.lower()} data for {player_name}')
+
     # Open individual player batting stats
     WebDriverWait(driver, 10) \
         .until(EC.element_to_be_clickable((By.LINK_TEXT, player_name)))
@@ -201,6 +207,7 @@ def collect_individual_player_data(
 
 def collect_player_statistics_data(
     driver: WebDriver,
+    logger: logging.Logger,
     field: str = 'BATTING'
 ) -> Tuple[WebDriver, pd.DataFrame]:
     """
@@ -250,9 +257,9 @@ def collect_player_statistics_data(
     dismissal_df = pd.DataFrame(columns=dismissal_columns)
 
     # Iterate through each page to collect batting stats for the year
-    scan_pages = True
+    # scan_pages = True
     rank = 1
-    while scan_pages:
+    while True:
         try:
             # Scrape high level summary of outfield data
             summary_df, page_df = collect_table_data(driver=driver,
@@ -270,7 +277,8 @@ def collect_player_statistics_data(
                                                        player_name=player,
                                                        player_stats_df=player_stats_df,
                                                        dismissal_df=dismissal_df,
-                                                       field=field)
+                                                       field=field,
+                                                       logger=logger)
 
             if field == 'BOWLING':
                 # Iterate through each player and collect their batting data
@@ -282,19 +290,22 @@ def collect_player_statistics_data(
                                                        player_name=player,
                                                        player_stats_df=player_stats_df,
                                                        dismissal_df=dismissal_df,
-                                                       field=field)
+                                                       field=field,
+                                                       logger=logger)
+            try:
+                # Return to previous page
+                WebDriverWait(driver, 10) \
+                    .until(EC.element_to_be_clickable((By.LINK_TEXT, "Next")))
+                driver.find_element(By.LINK_TEXT, "Next").click()
 
-            # Return to previous page
-            WebDriverWait(driver, 10) \
-                .until(EC.element_to_be_clickable((By.LINK_TEXT, "Next")))
-            driver.find_element(By.LINK_TEXT, "Next").click()
+                rank = rank + 10
 
-            rank = rank + 10
+            except TimeoutException:
+                driver.execute_script("window.scrollTo(0, 0);")
+                break
 
         except BaseException as e:
-            print(e)
-
-            # Exit while loop
-            scan_pages = False
+            logger.error(f'Issue collecting {field.lower()} data - {e}')
+            break
 
     return driver, summary_df, player_stats_df, dismissal_df

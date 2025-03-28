@@ -12,7 +12,8 @@ from functions.data_functions import (
 
 # Import ui components
 from functions.ui_components import (
-    configure_page_config
+    configure_page_config,
+    data_source_badge
 )
 
 # Load environment variables
@@ -54,7 +55,7 @@ if st.experimental_user.is_logged_in:
 
     with tab1:
 
-        col1, col2, col3 = st.columns([1, 1, 3])
+        col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
 
         with col1:
 
@@ -62,7 +63,7 @@ if st.experimental_user.is_logged_in:
                                         options=seasons_overs,
                                         key='selectbox-overs')
 
-        with col2:
+        with col3:
 
             metric_overs = st.pills(label='Metric',
                                     options=['WICKETS', 'RUNS'],
@@ -71,6 +72,9 @@ if st.experimental_user.is_logged_in:
                                     key='pills-overs')
 
         bowling_data_df = bowling_data_df[bowling_data_df['SEASON'] == season_overs]
+
+        data_source_badge(blob_connection_string=vars.blob_connection_string,
+                          file_name='bowling_data.csv')
 
         fig = px.scatter(data_frame=bowling_data_df,
                          x='OVERS',
@@ -108,6 +112,9 @@ if st.experimental_user.is_logged_in:
                                         selection_mode='single',
                                         default=False,
                                         key='pills-extras-normalise')
+            
+        data_source_badge(blob_connection_string=vars.blob_connection_string,
+                          file_name='bowling_match_data.csv')
 
         bowling_match_data_df = bowling_match_data_df[bowling_match_data_df['SEASON'] == season_extras]
 
@@ -167,6 +174,9 @@ if st.experimental_user.is_logged_in:
             season_wickets = st.selectbox(label='Season',
                                           options=seasons_dismissals,
                                           key='selectbox-wicket')
+            
+        data_source_badge(blob_connection_string=vars.blob_connection_string,
+                          file_name='bowling_dismissals.csv')
 
         dismissal_data_df = dismissal_data_df[dismissal_data_df['SEASON'] == season_wickets]
 

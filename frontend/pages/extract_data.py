@@ -34,23 +34,30 @@ if st.experimental_user.is_logged_in:
     files = list_blob_files(connectio_string=vars.blob_connection_string,
                             container_name='play-cricket')
 
-    # Render file selectbox
-    file = st.sidebar.selectbox(label='File',
-                                options=files)
+    col1, col2 = st.columns([2, 3])
 
-    # Download file from csv
-    df = read_csv_from_blob(connection_string=vars.blob_connection_string,
-                            container_name='play-cricket',
-                            blob_name=file)
+    with col1:
 
-    # Render data in dataframe format
-    st.dataframe(df)
+        # Render file selectbox
+        file = st.selectbox(label='File',
+                            options=files)
 
-    # Render dataframe download button
-    st.sidebar.download_button(
-        label="Download Data",
-        data=df.to_csv().encode("utf-8"),
-        file_name=file,
-        mime="text/csv",
-        icon=":material/download:"
-    )
+        # Download file from csv
+        df = read_csv_from_blob(connection_string=vars.blob_connection_string,
+                                container_name='play-cricket',
+                                blob_name=file)
+
+        # Render dataframe download button
+        st.download_button(
+            label="Download Data",
+            data=df.to_csv().encode("utf-8"),
+            file_name=file,
+            mime="text/csv",
+            icon=":material/download:"
+        )
+
+    with st.expander(label='Preview Data',
+                     expanded=False):
+
+        # Render data in dataframe format
+        st.dataframe(df)

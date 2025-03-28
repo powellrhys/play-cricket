@@ -10,6 +10,15 @@ from datetime import datetime
 import pandas as pd
 import logging
 
+# Import data functions
+from functions.data_functions import (
+    read_csv_from_blob
+)
+
+# Import setup functions
+from functions.setup_functions import (
+    Variables
+)
 
 def collect_match_report_ids(
     logger: logging.Logger,
@@ -35,7 +44,7 @@ def collect_match_report_ids(
         dropdown.select_by_visible_text("1st XI")
 
         # Generate a list of years from this year to 5 years ago
-        years = [str(datetime.now().year - i) for i in range(5)]
+        years = [str(datetime.now().year - i) for i in range(2)]
         years.reverse()
 
         # Locate the dropdown by its ID
@@ -188,3 +197,22 @@ def analyse_match_reports(
                 bowling_stats = pd.concat([bowling_stats, df], ignore_index=True)
 
     return driver, bowling_stats, logger
+
+def filter_reports_by_bowlers(
+    match_report_bowling_data: pd.DataFrame,
+    vars: Variables
+) -> pd.DataFrame:
+    """
+    """
+    # Collect bowling data from blob
+    bowling_df = read_csv_from_blob(connection_string=vars.blob_connection_string,
+                                    container_name='play-cricket',
+                                    blob_name='bowling_data.csv')
+
+    # Generate a unique list of bowlers from recent season
+    bowlers = bowling_df['PLAYER'].unique()
+
+    # Filter match report data based on recent club bowlers
+    match_report_bowling_data = match_report_bowling_data[match_report_bowling_data['BOWLER'].isin(bowlers)]
+
+    return match_report_bowling_data

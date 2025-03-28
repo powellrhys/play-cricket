@@ -24,3 +24,26 @@ def write_df_to_blob(
 
     # Upload the CSV to Blob Storage
     blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
+
+
+def read_csv_from_blob(
+    connection_string: str,
+    container_name: str,
+    blob_name: str
+) -> pd.DataFrame:
+    """
+    """
+    # Create a BlobServiceClient
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+
+    # Get a reference to the blob
+    blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+
+    # Download the blob content
+    blob_data = blob_client.download_blob()
+    csv_content = blob_data.content_as_text()
+
+    # Convert CSV content to DataFrame
+    df = pd.read_csv(io.StringIO(csv_content))
+
+    return df

@@ -38,18 +38,19 @@ def read_csv_from_blob(
 
 
 def list_blob_files(
-    connectio_string: str,
+    connection_string: str,
     container_name
 ) -> list:
     """
     """
     # Create BlobServiceClient
-    blob_service_client = BlobServiceClient.from_connection_string(connectio_string)
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
     # Get ContainerClient
     container_client = blob_service_client.get_container_client(container_name)
 
     # List blobs in container
-    blob_files = [file['name'] for file in container_client.list_blobs()]
+    blob_files = [file for file in container_client.list_blobs()]
+    blob_filename = [file['name'] for file in container_client.list_blobs()]
 
-    return blob_files
+    return blob_filename, blob_files
