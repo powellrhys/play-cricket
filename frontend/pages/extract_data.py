@@ -25,6 +25,7 @@ configure_page_config()
 if not st.experimental_user.is_logged_in:
     st.login('auth0')
 
+# If user logged in, render streamlit components
 if st.experimental_user.is_logged_in:
 
     # Render page title
@@ -34,9 +35,9 @@ if st.experimental_user.is_logged_in:
     files, _ = list_blob_files(connection_string=vars.blob_connection_string,
                                container_name='play-cricket')
 
-    col1, col2 = st.columns([2, 3])
+    cols = st.columns([2, 3])
 
-    with col1:
+    with cols[0]:
 
         # Render file selectbox
         file = st.selectbox(label='File',
@@ -56,6 +57,7 @@ if st.experimental_user.is_logged_in:
             icon=":material/download:"
         )
 
+    # Render expander for dataframe preview
     with st.expander(label='Preview Data',
                      expanded=False):
 

@@ -12,7 +12,8 @@ from functions.data_functions import (
 
 # Import ui components
 from functions.ui_components import (
-    configure_page_config
+    configure_page_config,
+    data_source_badge
 )
 
 # Load environment variables
@@ -26,47 +27,63 @@ configure_page_config()
 if not st.experimental_user.is_logged_in:
     st.login('auth0')
 
+# If logged in, render page components
 if st.experimental_user.is_logged_in:
 
     # Render page title
     st.title(f'{vars.club.capitalize()} CC Player Bowling Analysis')
 
+    # Read dismissal dataframe from blob
     dismissal_data_df = read_csv_from_blob(connection_string=vars.blob_connection_string,
                                            container_name='play-cricket',
                                            blob_name='bowling_dismissals.csv')
 
+    # Remove 'ALl' season and convert season column to integer type
     dismissal_data_df = dismissal_data_df[dismissal_data_df['SEASON'] != 'ALL']
     dismissal_data_df['SEASON'] = dismissal_data_df['SEASON'].astype(int)
 
+    # Collect a list of unique bowlers and season
     seasons_dismissals = dismissal_data_df['SEASON'].unique()
     bowlers = dismissal_data_df['PLAYER'].unique()
 
-    tab1, tab2 = st.tabs(['Wicket Taking', 'Stats'])
+    # Render streamlit tabs
+    tabs = st.tabs(['Wicket Taking'])
 
-    with tab1:
+    # Render streamlit tabs
+    with tabs[0]:
 
-        col1, col2, col3 = st.columns([1, 1, 1])
+        # Render columns
+        cols = st.columns([1, 1, 1])
 
-        with col1:
+        # Render components within first column
+        with cols[0]:
 
+            # Render selectbox for bowlers metric
             bowler = st.selectbox(label='Bowler',
                                   options=bowlers,
                                   key='selectbox-bowler')
 
-        with col3:
+        # Render components within 3rd column
+        with cols[2]:
 
+            # Render season slider
             season = st.slider(label='Season Range',
                                min_value=datetime.now().year - 20,
                                max_value=datetime.now().year,
                                value=[datetime.now().year - 5, datetime.now().year])
 
+        # Render data source metadata badge
+        data_source_badge(blob_connection_string=vars.blob_connection_string,
+                          file_name='bowling_dismissals.csv')
+
+        # Filter data based on streamlit inputs
         dismissal_data_df = \
             dismissal_data_df[
                 (dismissal_data_df['SEASON'] >= season[0]) &
                 (dismissal_data_df['SEASON'] <= season[1]) &
                 (dismissal_data_df['PLAYER'] == bowler)]
 
-        # Melt the dataframe to reshape it so 'bowled' and 'caught' are in a single column
+        # Melt the dataframe to reshape it so dismissal types are in a single column
         dismissal_data_df = dismissal_data_df.melt(id_vars=['SEASON'],
                                                    value_vars=['BOWLED', 'CAUGHT', 'LBW', 'STUMPED', 'HIT ROOF'],
                                                    var_name='TYPE',
@@ -84,11 +101,11 @@ if st.experimental_user.is_logged_in:
                      title="Bowled and Caught Count by Season",
                      labels={'SEASON': 'Season', 'COUNT': 'Wickets'},
                      color_discrete_map={
-                         'BOWLED': '#316151',   # Dark Green
-                         'CAUGHT': '#FFE31A',   # Bright Yellow
-                         'LBW': '#A63D40',  # Deep Red
-                         'STUMPED': '#6495ED',    # Cornflower Blue
+                         'BOWLED': '#316151',
+                         'CAUGHT': '#FFE31A',
+                         'LBW': '#A63D40',
+                         'STUMPED': '#6495ED',
                          'Hit ROOF': '#D2B48C'})
 
+        # Render bar chart
         st.plotly_chart(fig)
-        # st.dataframe(dismissal_data_df)

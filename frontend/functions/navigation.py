@@ -1,10 +1,27 @@
+# Import python dependencies
 import streamlit as st
 
 def get_navigation(
     club: str
 ) -> st.navigation:
     """
+    Function to configure application navigation and connections between pages
+
+    Args:
+        club (str): Club name of application
+
+    Raise:
+        TypeError: If club input parameter not string
+
+    Return:
+        nav (st.navigation()): Streamlit navigation object
+
     """
+    # Ensure club argument is string
+    if not isinstance(club, str):
+        raise TypeError(f'Argument club is type: {type(club)}, value should be string')
+
+    # Construct pages dictionary
     pages = {
         f'{club.capitalize()} CC': [st.Page("pages/home.py", title="Home")],
         "Batting": [
@@ -20,4 +37,7 @@ def get_navigation(
         ]
     }
 
-    return st.navigation(pages)
+    # Construct streamlit navigation object
+    nav = st.navigation(pages)
+
+    return nav

@@ -122,7 +122,7 @@ except BaseException as e:
 try:
     # Collect match report ids
     logger.info('Collecting Match report ids...')
-    driver, match_report_ids = collect_match_report_ids(
+    driver, match_report_ids, logger = collect_match_report_ids(
         logger=logger,
         driver=driver,
         club=vars.club
@@ -155,4 +155,5 @@ try:
 except BaseException as e:
     logger.error(f'Failed to collect and export bowling match report data data - {e}\n')
 
+# Close selenium driver
 driver.close()

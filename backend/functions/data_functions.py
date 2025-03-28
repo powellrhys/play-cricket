@@ -10,6 +10,17 @@ def write_df_to_blob(
     blob_name: str
 ) -> None:
     """
+    Function to write pandas dataframe to azure blob storage account
+
+    Args:
+        df (pd.DataFrame): Pandas dataframe to write to blob
+        connection_string (str): Azure blob storage connection string
+        container_name (str): Azure container name
+        blob_name (str): File name for blob written to blob
+
+    Raise: None
+
+    Return: None
     """
     # Create a BlobServiceClient
     blob_service_client = BlobServiceClient.from_connection_string(connection_string)
@@ -32,7 +43,24 @@ def read_csv_from_blob(
     blob_name: str
 ) -> pd.DataFrame:
     """
+    Function to read csv files from blob storage
+
+    Args:
+       connection_string (str): Azure storage account connection string
+       container_name (str): Azure storage account container name
+       blob_name (str): Azure storage account file name
+
+    Raise:
+        TypeError: If input values are not strings
+
+    Return:
+        df (pd.Dataframe): Pandas dataframe generated from csv data stored in a blob storage
     """
+    # Ensure input variables are strings
+    for arg_name, arg_value in locals().items():
+        if not isinstance(arg_value, str):
+            raise TypeError(f"{arg_name} must be a string, but got {type(arg_value).__name__}")
+
     # Create a BlobServiceClient
     blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 

@@ -6,6 +6,14 @@ import io
 
 class Variables:
     """
+    Class to collect environmental variables from secrets.toml file. Secrets should
+    be located in .streamlit/secrets.toml file
+
+    Args: None
+
+    Raise: None
+
+    Return: None
     """
     def __init__(self):
 
@@ -20,7 +28,24 @@ def read_csv_from_blob(
     blob_name: str
 ) -> pd.DataFrame:
     """
+    Function to read csv files from blob storage
+
+    Args:
+       connection_string (str): Azure storage account connection string
+       container_name (str): Azure storage account container name
+       blob_name (str): Azure storage account file name
+
+    Raise:
+        TypeError: If input values are not strings
+
+    Return:
+        df (pd.Dataframe): Pandas dataframe generated from csv data stored in a blob storage
     """
+    # Ensure input variables are strings
+    for arg_name, arg_value in locals().items():
+        if not isinstance(arg_value, str):
+            raise TypeError(f"{arg_name} must be a string, but got {type(arg_value).__name__}")
+
     # Create a BlobServiceClient
     blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
@@ -40,9 +65,26 @@ def read_csv_from_blob(
 def list_blob_files(
     connection_string: str,
     container_name
-) -> list:
+) -> tuple[list, list]:
     """
+    Function to list all files in a blob storage container
+
+    Args:
+        connection_string (str): Azure blob storage connection string
+        container_name (str): Azure blob storage container name
+
+    Raise:
+        TypeError: If input variables are not strings
+
+    Return:
+        blob_file_names (list): List of blob files names with a container
+        blob_files (list): List of blob files in container (list of dictionaries)
     """
+    # Ensure input variables are strings
+    for arg_name, arg_value in locals().items():
+        if not isinstance(arg_value, str):
+            raise TypeError(f"{arg_name} must be a string, but got {type(arg_value).__name__}")
+
     # Create BlobServiceClient
     blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
@@ -51,6 +93,6 @@ def list_blob_files(
 
     # List blobs in container
     blob_files = [file for file in container_client.list_blobs()]
-    blob_filename = [file['name'] for file in container_client.list_blobs()]
+    blob_filenames = [file['name'] for file in container_client.list_blobs()]
 
-    return blob_filename, blob_files
+    return blob_filenames, blob_files
