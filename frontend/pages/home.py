@@ -23,6 +23,7 @@ configure_page_config()
 if not st.experimental_user.is_logged_in:
     st.login('auth0')
 
+# If user logged in, render streamlit content
 if st.experimental_user.is_logged_in:
 
     # Render page title
@@ -30,6 +31,7 @@ if st.experimental_user.is_logged_in:
 
     # Render contaienr
     with st.container(border=True):
+
         # Render application overview paragraph
         st.write(
             """

@@ -10,13 +10,34 @@ from datetime import datetime
 import pandas as pd
 import logging
 
+# Import data functions
+from functions.data_functions import (
+    read_csv_from_blob
+)
+
+# Import setup functions
+from functions.setup_functions import (
+    Variables
+)
 
 def collect_match_report_ids(
     logger: logging.Logger,
     driver: WebDriver,
     club: str
-) -> tuple[WebDriver, list]:
+) -> tuple[WebDriver, list, logging.Logger]:
     """
+    Function to collect match report ids
+
+    Args:
+        logger (logging.Logger): Python logging object
+        driver (WebDriver): Selenium Webdriver
+        club (str): Club name
+
+    Raise: None
+
+    Return
+        driver (WebDriver): Selenium WebDriver
+        result_ids (list): List of report ids
     """
     try:
         # Open chrome on specific play cricket club
@@ -35,7 +56,7 @@ def collect_match_report_ids(
         dropdown.select_by_visible_text("1st XI")
 
         # Generate a list of years from this year to 5 years ago
-        years = [str(datetime.now().year - i) for i in range(5)]
+        years = [str(datetime.now().year - i) for i in range(6)]
         years.reverse()
 
         # Locate the dropdown by its ID
@@ -74,7 +95,7 @@ def collect_match_report_ids(
     except BaseException:
         logger.error('Failed to collect match report ids')
 
-    return driver, result_ids
+    return driver, result_ids, logger
 
 
 def analyse_match_reports(
@@ -84,6 +105,20 @@ def analyse_match_reports(
     club: str
 ) -> tuple[WebDriver, pd.DataFrame, logging.Logger]:
     """
+    Function to analyse play cricket match report
+
+    Args:
+        logger (logging.Logger): Python logging object
+        driver (WebDriver): Selenium WebDriver
+        result_ids (list): List of play cricket report ids
+        club (str): Play cricket club name
+
+    Raise: None
+
+    Return:
+        driver (WebDriver): Selenium WebDriver
+        bowling_stats (pd.DataFrame): Bowling stats from match reports
+        logger (logging.Logger): Python logging object
     """
     # Create an empty DataFrame
     bowling_stats = pd.DataFrame()
@@ -114,6 +149,7 @@ def analyse_match_reports(
             # Extract text
             fixture_date = fixture_detail.text.split('@')[0].strip()
 
+            # Log out info
             logger.info(f'{index}/{len(result_ids)}: Analysing match against {opponent} '
                         f'({home_or_away[0]}) - {fixture_date}...')
 
@@ -188,3 +224,38 @@ def analyse_match_reports(
                 bowling_stats = pd.concat([bowling_stats, df], ignore_index=True)
 
     return driver, bowling_stats, logger
+
+def filter_reports_by_bowlers(
+    match_report_bowling_data: pd.DataFrame,
+    vars: Variables
+) -> pd.DataFrame:
+    """
+    Function to filter match report data to ensure all bowlers are at the club
+
+    Args:
+        match_report_bowling_data (pd.DataFrame): Bowling stats from match reports
+        vars (Variables): Project Variables Class
+
+    Raise: None
+
+    Return:
+        match_report_bowling_data (pd.DataFrame): Filtered bowling stats from reports
+    """
+    # Collect bowling data from blob
+    bowling_df = read_csv_from_blob(connection_string=vars.blob_connection_string,
+                                    container_name='play-cricket',
+                                    blob_name='bowling_data.csv')
+
+    # Generate a unique list of bowlers from recent season
+    bowlers = bowling_df['PLAYER'].unique()
+
+    # Filter match report data based on recent club bowlers
+    match_report_bowling_data = match_report_bowling_data[match_report_bowling_data['BOWLER'].isin(bowlers)]
+
+    # Convert only 'date_column' to datetime, invalid dates become NaT
+    match_report_bowling_data['DATE'] = pd.to_datetime(match_report_bowling_data['DATE'], errors='coerce')
+
+    # Drop rows where 'date_column' is NaT
+    match_report_bowling_data = match_report_bowling_data.dropna(subset=['DATE'])
+
+    return match_report_bowling_data

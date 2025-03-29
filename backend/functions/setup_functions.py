@@ -13,6 +13,14 @@ import os
 
 def configure_logger() -> logging.Logger:
     """
+    Function to configure python logger
+
+    Args: None
+
+    Raise: None
+
+    Return:
+        logger (logging.Logger): Python logging object
     """
     # Configure Logger
     logger = logging.getLogger('BASIC')
@@ -27,6 +35,13 @@ def configure_logger() -> logging.Logger:
 
 class Variables:
     """
+    Class to collect environmental variables from .env file
+
+    Args: None
+
+    Raise: None
+
+    Return: None
     """
     def __init__(self):
 
@@ -34,12 +49,8 @@ class Variables:
         self.club = os.getenv('club')
         self.email = os.getenv('email')
         self.password = os.getenv('password')
-        self.headless = os.getenv('headless')
+        self.headless = eval(os.getenv('headless'))
         self.driver_path = os.getenv('driver_path')
-        self.email_sender = os.getenv('email_sender')
-        self.email_password = os.getenv('email_password')
-        self.email_reciever = os.getenv('email_reciever')
-        self.output_directory = os.getenv('output_directory')
         self.blob_connection_string = os.getenv('blob_connection_string')
 
 
@@ -48,11 +59,22 @@ def configure_driver(
     headless: bool = False
 ) -> WebDriver:
     """
+    Function to configure selenium driver
+
+    Args:
+        driver_path (str): Path to selenium driver
+        headless (bool): Boolean to determine whether selenium should run in headless mode
+
+    Raise: None
+
+    Return:
+        driver (WebDriver): Selenium WebDriver
     """
     # Configure logging to suppress unwanted messages
     chrome_options = Options()
     chrome_options.add_argument("--log-level=3")
 
+    # If headless, run driver in headless mode
     if headless:
         chrome_options.add_argument("--headless")
 
@@ -71,7 +93,20 @@ def login_to_play_cricket(
     password: str
 ) -> WebDriver:
     """
+    Function to login into play cricket
+
+    Args:
+        driver (WebDriver): Selenium driver
+        club (str): Play cricket club name
+        email (str): Play cricket email used to login into play cricket
+        password (str): Play cricket password used to login into play cricket
+
+    Raise: None
+
+    Return:
+        driver (WebDriver): Selenium driver
     """
+    # Retry login process if login process has failed
     for _ in range(10):
         # Open chrome on specific play cricket club
         driver.get(f"http://{club}.play-cricket.com/users/sign_in")
@@ -103,12 +138,14 @@ def login_to_play_cricket(
         # Get all elements with class "mr-10"
         elements = driver.find_elements(By.CLASS_NAME, "mr-10")
 
+        # Check if login has been successful
         success = False
         for element in elements:
             if club.upper() in element.text:
                 success = True
-                break  # Stop checking once found
+                break
 
+        # If login has been successful, exit loop
         if success:
             break
 
@@ -119,6 +156,15 @@ def remove_cookies_pop_up(
     driver: WebDriver
 ) -> WebDriver:
     """
+    Function to remove cookies pop up
+
+    Args:
+        driver (WebDriver): Selenium WebDriver
+
+    Raise: None
+
+    Return
+        driver (WebDriver): Selenium WebDriver
     """
     # Remove cookies pop up
     WebDriverWait(driver, 10) \

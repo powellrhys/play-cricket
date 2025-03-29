@@ -10,7 +10,7 @@ on:
       - main
       - feature/*
   schedule:
-    - cron: '0 0 * 4-9 3'
+    - cron: '0 0 * * TUE'
 
 jobs:
   scrape-data:
@@ -49,16 +49,13 @@ jobs:
           chromedriver --version
 
       # Run Python Script
-      - name: Run Python scrape script
+      - name: Run Python data collection script
         env:
           club: ${{ secrets.club }}
           email: ${{ secrets.email }}
           password: ${{ secrets.password }}
-          email_sender: ${{ secrets.email_sender }}
-          email_password: ${{ secrets.email_password }}
-          email_reciever: ${{ secrets.email_reciever }}
-          to_email: True
-          headless: True
+          headless: 'True'
           driver_path: '/usr/bin/chromedriver'
+          blob_connection_string: ${{ secrets.blob_connection_string }}
         run: |
-          python 01_Season_Summary_Project/main.py
+          python backend/collect_data.py
