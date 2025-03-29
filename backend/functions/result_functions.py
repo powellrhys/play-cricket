@@ -112,7 +112,7 @@ def analyse_match_reports(
         driver (WebDriver): Selenium WebDriver
         result_ids (list): List of play cricket report ids
         club (str): Play cricket club name
-    
+
     Raise: None
 
     Return:
