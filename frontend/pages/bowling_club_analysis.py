@@ -54,8 +54,13 @@ if st.experimental_user.is_logged_in:
 
     # Collect unique season values from dataframes
     seasons_overs = bowling_data_df['SEASON'].unique()
-    seasons_extras = bowling_match_data_df['SEASON'].unique()
+    seasons_extras = list(bowling_match_data_df['SEASON'].unique())
     seasons_dismissals = dismissal_data_df['SEASON'].unique()
+
+    # Perform transformations and append data to seasons lists
+    oldest_season = min(seasons_extras)
+    seasons_extras.append('ALL')
+    seasons_extras.reverse()
 
     # Render streamlit tabs on page
     tabs = st.tabs(tabs=['Bowling Effectiveness', 'Extras Analysis', 'Wicket Taking'])
@@ -141,10 +146,8 @@ if st.experimental_user.is_logged_in:
 
         # Render data source metadata badge
         data_source_badge(blob_connection_string=vars.blob_connection_string,
-                          file_name='bowling_match_data.csv')
-
-        # Filter bowling report data by season
-        bowling_match_data_df = bowling_match_data_df[bowling_match_data_df['SEASON'] == season_extras]
+                          file_name='bowling_match_data.csv',
+                          additional_comments=f'Data dated back to {oldest_season} season')
 
         # Apply lambda function to calculate the number of ball delivered
         bowling_match_data_df['BALLS'] = \
@@ -152,10 +155,24 @@ if st.experimental_user.is_logged_in:
             .apply(lambda x: (int(str(x).split('.')[0]) * 6) + int(str(x).split('.')[1][0])
                    if '.' in str(x) else int(x) * 6)
 
+        # Aggregate all data
+        all_data = bowling_match_data_df.groupby(['BOWLER', 'VENUE'], as_index=False)[
+            ['BALLS', 'MAIDENS', 'WICKETS', 'RUNS', 'WIDES', 'NO BALLS']
+        ].sum()
+
+        # Add season column to aggregated dataframe
+        all_data['SEASON'] = 'ALL'
+
         # Group data by bowler, season and venue
         bowling_match_data_df = bowling_match_data_df.groupby(['BOWLER', 'SEASON', 'VENUE'], as_index=False)[
             ['BALLS', 'MAIDENS', 'WICKETS', 'RUNS', 'WIDES', 'NO BALLS']
         ].sum()
+
+        # Append aggregated data to dataframe
+        bowling_match_data_df = pd.concat([bowling_match_data_df, all_data], ignore_index=True)
+
+        # Filter bowling report data by season
+        bowling_match_data_df = bowling_match_data_df[bowling_match_data_df['SEASON'] == season_extras]
 
         # Create dynamic metric column
         bowling_match_data_df['METRIC'] = bowling_match_data_df[metric_extras]
