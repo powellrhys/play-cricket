@@ -68,6 +68,7 @@ def data_source_badge(
     Args:
         blob_connection_string (str): azure blob storage connection string
         file_name (str): blob storage file name
+        additional_comments (str = ''): Additional notes to render on badge
 
     Raise:
         TypeError: If blob_connection_string or file_name not a string
@@ -86,6 +87,7 @@ def data_source_badge(
     # Filter blob files list to retrieve file of interest and when file was last modified
     last_modified = [file for file in blob_files if file['name'] == file_name][0]['last_modified']
 
+    # Configure additional notes string
     if additional_comments:
         additional_note = f' **| Note:** {additional_comments}'
     else:

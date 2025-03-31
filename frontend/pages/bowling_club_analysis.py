@@ -55,10 +55,12 @@ if st.experimental_user.is_logged_in:
     # Collect unique season values from dataframes
     seasons_overs = bowling_data_df['SEASON'].unique()
     seasons_extras = list(bowling_match_data_df['SEASON'].unique())
+    seasons_dismissals = dismissal_data_df['SEASON'].unique()
+
+    # Perform transformations and append data to seasons lists
     oldest_season = min(seasons_extras)
     seasons_extras.append('ALL')
     seasons_extras.reverse()
-    seasons_dismissals = dismissal_data_df['SEASON'].unique()
 
     # Render streamlit tabs on page
     tabs = st.tabs(tabs=['Bowling Effectiveness', 'Extras Analysis', 'Wicket Taking'])
