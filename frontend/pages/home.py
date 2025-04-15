@@ -7,8 +7,8 @@ from functions.data_functions import (
     Variables
 )
 
-# Import ui components
-from functions.ui_components import (
+# Import custom ui components
+from streamlit_components.ui_components import (
     configure_page_config
 )
 
@@ -17,7 +17,8 @@ load_dotenv()
 vars = Variables()
 
 # Set page config
-configure_page_config()
+configure_page_config(repository_name='play-cricket',
+                      page_icon='🏏')
 
 # Ensure user is authenticated to use application
 if not st.experimental_user.is_logged_in:
