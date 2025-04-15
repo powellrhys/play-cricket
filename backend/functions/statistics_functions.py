@@ -1,12 +1,13 @@
 # Import Selenium dependencies
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
 # Import python dependencies
+from datetime import datetime
 from bs4 import BeautifulSoup
 from typing import Tuple
 import pandas as pd
@@ -47,6 +48,16 @@ def query_data(
         WebDriverWait(driver, 10) \
             .until(EC.element_to_be_clickable((By.LINK_TEXT, field)))
         driver.find_element(By.LINK_TEXT, field).click()
+
+    # Locate the dropdown element
+    time.sleep(1)
+    dropdown_element = driver.find_element("id", "season")
+
+    # Wrap it with a Select object
+    dropdown = Select(dropdown_element)
+
+    # Select the option with visible text of previous year
+    dropdown.select_by_visible_text(str(int(datetime.now().year) - 1))
 
     # Open data filter tab
     time.sleep(1)
