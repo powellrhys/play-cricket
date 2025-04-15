@@ -64,14 +64,17 @@ try:
 
     # Write batting data to blob storage
     logger.info('Writing batting data to blob storage account...')
-    write_df_to_blob(df=batting_df,
-                     connection_string=vars.blob_connection_string,
-                     container_name='play-cricket',
-                     blob_name='batting_data.csv')
-    write_df_to_blob(df=batting_dismissal_df,
-                     connection_string=vars.blob_connection_string,
-                     container_name='play-cricket',
-                     blob_name='batting_how_out.csv')
+    if not batting_df.empty:
+        write_df_to_blob(df=batting_df,
+                         connection_string=vars.blob_connection_string,
+                         container_name='play-cricket',
+                         blob_name='batting_data.csv')
+
+    if not batting_dismissal_df.empty:
+        write_df_to_blob(df=batting_dismissal_df,
+                         connection_string=vars.blob_connection_string,
+                         container_name='play-cricket',
+                         blob_name='batting_how_out.csv')
     logger.info('Batting data written to blob\n')
 
 except BaseException as e:
@@ -87,14 +90,17 @@ try:
 
     # Write bowling data to blob storage
     logger.info('Writing bowling data to blob storage account...')
-    write_df_to_blob(df=bowling_df,
-                     connection_string=vars.blob_connection_string,
-                     container_name='play-cricket',
-                     blob_name='bowling_data.csv')
-    write_df_to_blob(df=bowling_dismissal_df,
-                     connection_string=vars.blob_connection_string,
-                     container_name='play-cricket',
-                     blob_name='bowling_dismissals.csv')
+    if not bowling_df.empty:
+        write_df_to_blob(df=bowling_df,
+                         connection_string=vars.blob_connection_string,
+                         container_name='play-cricket',
+                         blob_name='bowling_data.csv')
+
+    if not bowling_dismissal_df.empty:
+        write_df_to_blob(df=bowling_dismissal_df,
+                         connection_string=vars.blob_connection_string,
+                         container_name='play-cricket',
+                         blob_name='bowling_dismissals.csv')
     logger.info('Bowling data written to blob\n')
 
 except BaseException as e:
@@ -110,10 +116,11 @@ try:
 
     # Write fielding data to blob storage
     logger.info('Writing fielding data to blob storage account...')
-    write_df_to_blob(df=fielding_summary_df,
-                     connection_string=vars.blob_connection_string,
-                     container_name='play-cricket',
-                     blob_name='fielding_data.csv')
+    if not fielding_summary_df.empty:
+        write_df_to_blob(df=fielding_summary_df,
+                         connection_string=vars.blob_connection_string,
+                         container_name='play-cricket',
+                         blob_name='fielding_data.csv')
     logger.info('Fielding data written to blob\n')
 
 except BaseException as e:
@@ -146,10 +153,11 @@ try:
 
     # Write match report bowling data to blob storage
     logger.info('Writing match report bowling data to blob storage account...')
-    write_df_to_blob(df=match_report_bowling_data,
-                     connection_string=vars.blob_connection_string,
-                     container_name='play-cricket',
-                     blob_name='bowling_match_data.csv')
+    if not match_report_bowling_data.empty:
+        write_df_to_blob(df=match_report_bowling_data,
+                         connection_string=vars.blob_connection_string,
+                         container_name='play-cricket',
+                         blob_name='bowling_match_data.csv')
     logger.info('Match report bowling data written to blob\n')
 
 except BaseException as e:
