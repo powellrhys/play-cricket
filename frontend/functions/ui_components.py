@@ -1,61 +1,10 @@
 # Import python dependencies
 import streamlit as st
-import warnings
 
 # Import data functions
 from functions.data_functions import (
     list_blob_files
 )
-
-def configure_page_config(
-    initial_sidebar_state: str = "expanded",
-    layout: str = "wide"
-) -> None:
-    """
-    Function to configure streamlit page configuration. Configured settings include,
-    initial sidebar state, page layout, page icon and menu items.
-
-    Args:
-        initial_sidebar_state (str = 'expanded'): Initial side bar state of streamlit page.
-            Acceptable values include 'expanded', 'collapsed' or 'auto'/.
-        layout (str = 'wide'): Streamlit page layout style. Acceptable values include "centered" or
-            "wide".
-
-    Raises:
-        ValueError: If initial_sidebar_state or layout value not acceptable
-
-    Return: None
-    """
-    # Ensure acceptable value used for initial_sidebar_state
-    if initial_sidebar_state not in ['expanded', 'collapsed', 'auto']:
-        raise ValueError(f"{initial_sidebar_state} not acceptable value for layout. "
-                         "Acceptable values include 'expanded', 'collapsed' or 'auto'")
-
-    # Ensure acceptable value used for layout
-    if layout not in ['wide', 'centered']:
-        raise ValueError(f"{layout} not acceptable value for layout. Acceptable values include "
-                         "'wide' or 'centered'")
-
-    # Set page config
-    st.set_page_config(
-        initial_sidebar_state=initial_sidebar_state,
-        layout=layout,
-        page_icon='🏏',
-        menu_items={
-            "Report a Bug": "https://github.com/powellrhys/play-cricket/issues"
-        }
-    )
-
-    # Disable page warnings
-    warnings.filterwarnings("ignore")
-
-    # Render account login component on sidebar
-    st.sidebar.markdown(f"👤 **Logged in as:** {st.experimental_user.name}")
-
-    # Render logout button on sidebar
-    if st.sidebar.button('Log Out'):
-        st.logout()
-
 
 def data_source_badge(
     blob_connection_string: str,

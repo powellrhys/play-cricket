@@ -50,6 +50,7 @@ if st.experimental_user.is_logged_in:
                                     container_name='play-cricket',
                                     blob_name='batting_data.csv')
 
+    # Collect unique drop down metrics
     batters_how_out = how_out_df['PLAYER'].unique()
     batters = batting_df['PLAYER'].unique()
 
@@ -70,7 +71,9 @@ if st.experimental_user.is_logged_in:
                                   options=batters,
                                   key='selectbox-batter-runs')
 
+        # Render components in the second column
         with cols[1]:
+
             # Render selectbox for batting metric
             batting_metric = st.selectbox(label='Metric',
                                           options=['RUNS',
@@ -144,6 +147,8 @@ if st.experimental_user.is_logged_in:
 
         # Render components in the 3rd columns
         with cols[2]:
+
+            # Create pills for different plot types
             plot_type = st.pills(label='Plot Type',
                                  options=['Bar', 'Area', 'Line'],
                                  default='Bar',
