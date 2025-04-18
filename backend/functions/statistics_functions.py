@@ -348,7 +348,7 @@ def collect_player_statistics_data(
                           '4s', '6s', 'DUCKS', '%TEAM RUNS', 'PLAYER']
 
         dismissal_columns = ['SEASON', 'BOWLED', 'CAUGHT', 'LBW', 'STUMPED',
-                             'RUN OUT', 'NOT OUT', 'DID NOT OUT', 'HIT ROOF', 'OTHER']
+                             'RUN OUT', 'NOT OUT', 'DID NOT BAT', 'HIT ROOF', 'OTHER']
 
     # Define bowling data
     if field == 'BOWLING':

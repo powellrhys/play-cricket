@@ -25,8 +25,8 @@ def get_navigation(
     pages = {
         f'{club.capitalize()} CC': [st.Page("pages/home.py", title="Home")],
         "Batting": [
-            st.Page("pages/batting_overview.py", title="Batting Overview"),
-            st.Page("pages/batting_dismissal_overview.py", title="Dismissal Overview")
+            st.Page("pages/batting_club_analysis.py", title="Club Analysis"),
+            st.Page("pages/batting_player_analysis.py", title="Player Analysis")
         ],
         "Bowling": [
             st.Page("pages/bowling_club_analysis.py", title="Club Analysis"),
