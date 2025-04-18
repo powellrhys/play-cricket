@@ -9,6 +9,7 @@ import pandas as pd
 # Import data functions
 from functions.data_functions import (
     read_csv_from_blob,
+    CricketData,
     Variables
 )
 
@@ -20,6 +21,11 @@ from functions.ui_components import (
 # Import custom ui components
 from streamlit_components.ui_components import (
     configure_page_config
+)
+
+# Import project mapping variables
+from functions.mapping import (
+    batting_dismissal_colour_map
 )
 
 # Load environment variables
@@ -40,19 +46,19 @@ if st.experimental_user.is_logged_in:
     # Render page title
     st.title(f'{vars.club.capitalize()} CC Player Batting  Analysis')
 
-    # Read batting dismissal dataframe from blob
-    how_out_df = read_csv_from_blob(connection_string=vars.blob_connection_string,
-                                    container_name='play-cricket',
-                                    blob_name='batting_how_out.csv')
+    # Create CricketData object and read in batting_how_out.csv data from blob
+    how_out_df = CricketData(blob_connection_string=vars.blob_connection_string,
+                             container_name='play-cricket',
+                             blob_name='batting_how_out.csv')
 
-    # Read batting data dataframe from blob
-    batting_df = read_csv_from_blob(connection_string=vars.blob_connection_string,
-                                    container_name='play-cricket',
-                                    blob_name='batting_data.csv')
+    # Create CricketData object and read in batting_how_out.csv data from blob
+    batting_df = CricketData(blob_connection_string=vars.blob_connection_string,
+                             container_name='play-cricket',
+                             blob_name='batting_data.csv')
 
     # Collect unique drop down metrics
-    batters_how_out = how_out_df['PLAYER'].unique()
-    batters = batting_df['PLAYER'].unique()
+    batters_how_out = how_out_df.collect_unique_column_values('PLAYER')
+    batters = batting_df.collect_unique_column_values('PLAYER')
 
     # Configure tab components
     tabs = st.tabs(['Runs Scored', 'How Out'])
@@ -76,13 +82,8 @@ if st.experimental_user.is_logged_in:
 
             # Render selectbox for batting metric
             batting_metric = st.selectbox(label='Metric',
-                                          options=['RUNS',
-                                                   'HIGH SCORE',
-                                                   '50s',
-                                                   '100s',
-                                                   '4s',
-                                                   '6s',
-                                                   'DUCKS'],
+                                          options=['RUNS', 'HIGH SCORE', '50s', '100s',
+                                                   '4s', '6s', 'DUCKS'],
                                           key='selectbox-batter-metric')
 
         # Render components within 4th column
@@ -99,20 +100,16 @@ if st.experimental_user.is_logged_in:
         data_source_badge(blob_connection_string=vars.blob_connection_string,
                           file_name='batting_data.csv')
 
-        # Transform season column to only include numeric values
-        batting_df = batting_df[batting_df['SEASON'] != 'ALL']
-        batting_df['SEASON'] = pd.to_numeric(batting_df['SEASON'], errors='coerce')
-        batting_df['HIGH SCORE'] = batting_df['HIGH SCORE'].str.replace('*', '', regex=False).astype('float')
+        # Transform season column to only include numeric values & remove not out marker
+        batting_df.remove_all_season_data()
+        batting_df.remove_not_out_marker()
 
         # Filter data based on streamlit inputs
-        batting_df = \
-            batting_df[
-                (batting_df['SEASON'] >= season[0]) &
-                (batting_df['SEASON'] <= season[1]) &
-                (batting_df['PLAYER'] == batter)]
+        batting_df.filter_data_by_player(player_name=batter)
+        batting_df.filter_data_by_season_range(season=season)
 
         # Plot desired data in a bar chart
-        fig = px.bar(data_frame=batting_df,
+        fig = px.bar(data_frame=batting_df.return_dataframe(),
                      x='SEASON',
                      y=batting_metric,
                      title=f'{batting_metric.capitalize()} per Season - {batter}',
@@ -125,7 +122,7 @@ if st.experimental_user.is_logged_in:
         fig.update_traces(textposition='outside')
         fig.update_layout(xaxis=dict(type='category',
                                      categoryorder='array',
-                                     categoryarray=sorted(batting_df['SEASON'])),
+                                     categoryarray=sorted(batting_df.return_dataframe()['SEASON'])),
                           uniformtext_minsize=8, uniformtext_mode='hide')
 
         # Render bar plot
@@ -141,7 +138,7 @@ if st.experimental_user.is_logged_in:
         with cols[0]:
 
             # Render selectbox for bowlers metric
-            bowler = st.selectbox(label='Batter',
+            batter = st.selectbox(label='Batter',
                                   options=batters_how_out,
                                   key='selectbox-batter')
 
@@ -168,73 +165,58 @@ if st.experimental_user.is_logged_in:
         data_source_badge(blob_connection_string=vars.blob_connection_string,
                           file_name='batting_how_out.csv')
 
-        # Transform season column to only include numeric values
-        how_out_df = how_out_df[how_out_df['SEASON'] != 'ALL']
-        how_out_df['SEASON'] = pd.to_numeric(how_out_df['SEASON'], errors='coerce')
-
-        # Filter data based on streamlit inputs
-        how_out_df = \
-            how_out_df[
-                (how_out_df['SEASON'] >= season[0]) &
-                (how_out_df['SEASON'] <= season[1]) &
-                (how_out_df['PLAYER'] == bowler)]
+        # Filter dataframe by season range and player name
+        how_out_df.remove_all_season_data()
+        how_out_df.filter_data_by_player(player_name=batter)
+        how_out_df.filter_data_by_season_range(season=season)
 
         # Melt the dataframe to long format
-        how_out_df = how_out_df \
-            .melt(id_vars=['SEASON', 'PLAYER'],
-                  value_vars=[col for col in how_out_df.columns if col not in ['SEASON', 'PLAYER']],
-                  var_name='Dismissal Type',
-                  value_name='Dismissal Count')
+        how_out_df.melt_dataframe(
+            id_vars=['SEASON', 'PLAYER'],
+            value_vars=[col for col in how_out_df.return_dataframe_columns()
+                        if col not in ['SEASON', 'PLAYER']],
+            var_name='Dismissal Type',
+            value_name='Dismissal Count'
+        )
 
         # Filter out NaN and data with zero records
-        how_out_df['Dismissal Count'] = how_out_df['Dismissal Count'].fillna(0)
-        how_out_df = how_out_df[how_out_df['Dismissal Count'] != 0.0]
-
-        # Define plot colour scheme
-        plot_colour_mapping = {
-            'BOWLED': '#316151',
-            'CAUGHT': '#FFE31A',
-            'LBW': '#A63D40',
-            'STUMPED': '#6495ED',
-            'RUN OUT': '#D2B48C',
-            'NOT OUT': '#E76F51',
-            'DID NOT BAT': '#2A9D8F',
-            'OTHER': '#E9C46A'
-        }
+        how_out_df.fill_nan(columns=['Dismissal Count'])
+        how_out_df.filter_out_data(column='Dismissal Count',
+                                   filter_value=0.0)
 
         # Configure bar plot
         if plot_type == 'Bar':
-            fig = px.bar(how_out_df,
+            fig = px.bar(how_out_df.return_dataframe(),
                          x='SEASON',
                          y='Dismissal Count',
                          color='Dismissal Type',
                          barmode='group',
                          title='Dismissals by Type per Season',
-                         color_discrete_map=plot_colour_mapping)
+                         color_discrete_map=batting_dismissal_colour_map)
 
         # Configure areas plot
         if plot_type == 'Area':
-            fig = px.area(how_out_df,
+            fig = px.area(how_out_df.return_dataframe(),
                           x='SEASON',
                           y='Dismissal Count',
                           color='Dismissal Type',
                           markers=True,
                           title='Dismissals by Type per Season',
-                          color_discrete_map=plot_colour_mapping)
+                          color_discrete_map=batting_dismissal_colour_map)
 
         # Configure line plot
         if plot_type == 'Line':
-            fig = px.line(how_out_df,
+            fig = px.line(how_out_df.return_dataframe(),
                           x='SEASON',
                           y='Dismissal Count',
                           color='Dismissal Type',
                           markers=True,
                           title='Dismissals by Type per Season',
-                          color_discrete_map=plot_colour_mapping)
+                          color_discrete_map=batting_dismissal_colour_map)
 
         fig.update_layout(xaxis=dict(type='category',
                                      categoryorder='array',
-                                     categoryarray=sorted(how_out_df['SEASON'])),
+                                     categoryarray=sorted(how_out_df.return_dataframe()['SEASON'])),
                           uniformtext_minsize=8, uniformtext_mode='hide')
 
         # Render plot

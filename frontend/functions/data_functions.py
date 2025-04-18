@@ -96,3 +96,131 @@ def list_blob_files(
     blob_filenames = [file['name'] for file in container_client.list_blobs()]
 
     return blob_filenames, blob_files
+
+
+class BlobData:
+    def __init__(
+        self,
+        blob_connection_string: str,
+        container_name: str,
+        blob_name: str
+    ):
+        self.df = read_csv_from_blob(connection_string=blob_connection_string,
+                                     container_name=container_name,
+                                     blob_name=blob_name)
+
+    def collect_unique_column_values(
+        self,
+        column_name: str
+    ) -> list:
+        """
+        """
+        # Check if column_name is present within dataframe
+        if column_name not in self.df.columns:
+            raise ValueError(f'Column: {column_name} is not present in dataframe')
+
+        # Collect unique values from dataframe column
+        unique_values = self.df[column_name].unique()
+
+        return unique_values
+
+    def fill_nan(
+        self,
+        columns: list,
+        fill_value: str | int = 0
+    ) -> None:
+        """
+        """
+        # Iterate through all columns
+        for column in columns:
+
+            # If column in dataframe, replace all NaN values with replacement value
+            if column in self.df.columns:
+                self.df[column] = self.df[column].fillna(fill_value)
+
+            # Raise error if column not present in dataframe
+            else:
+                raise ValueError(f"Column: {column} not present in dataframe")
+
+    def filter_out_data(
+        self,
+        column: str,
+        filter_value: str | int = 0
+    ) -> None:
+        """
+        """
+        # Filter out filter value from specified column
+        self.df = self.df[self.df[column] != filter_value]
+
+    def melt_dataframe(
+        self,
+        id_vars: list,
+        value_vars: list,
+        var_name: str,
+        value_name: str
+    ) -> None:
+        """
+        """
+        # Melt the dataframe to long format
+        self.df = self.df \
+            .melt(id_vars=id_vars,
+                  value_vars=value_vars,
+                  var_name=var_name,
+                  value_name=value_name)
+
+    def return_dataframe_columns(
+        self
+    ) -> list:
+        """
+        """
+        return self.df.columns
+
+    def return_dataframe(
+        self
+    ) -> pd.DataFrame:
+        """
+        """
+        return self.df
+
+class CricketData(BlobData):
+    def remove_all_season_data(
+        self,
+        season_column: str = 'SEASON'
+    ) -> None:
+        """
+        """
+        # Remove 'ALL' season from seasons column
+        self.df = self.df[self.df[season_column] != 'ALL']
+
+        # Convert all season yearly values to numeric values
+        self.df[season_column] = pd.to_numeric(self.df['SEASON'], errors='coerce')
+
+    def remove_not_out_marker(
+        self,
+        column_name: str = 'HIGH SCORE'
+    ) -> None:
+        """
+        """
+        # Remove '*' from column
+        self.df[column_name] = self.df[column_name].str.replace('*', '', regex=False).astype('float')
+
+    def filter_data_by_player(
+        self,
+        player_name: str,
+        column_name: str = 'PLAYER'
+    ) -> None:
+        """
+        """
+        # Filter data by player name
+        self.df = self.df[(self.df[column_name] == player_name)]
+
+    def filter_data_by_season_range(
+        self,
+        season: tuple[int, int],
+        column_name: str = 'SEASON'
+    ) -> None:
+        """
+        """
+        # Filter data by season range
+        self.df = self.df[(self.df[column_name] >= season[0]) &
+                          (self.df[column_name] <= season[1])]
