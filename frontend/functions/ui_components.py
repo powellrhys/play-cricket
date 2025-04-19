@@ -1,5 +1,8 @@
 # Import python dependencies
+from datetime import datetime
+from typing import Tuple
 import streamlit as st
+
 
 # Import data functions
 from functions.data_functions import (
@@ -49,3 +52,18 @@ def data_source_badge(
     # Render badge on streamlit page
     st.badge(label=badge_message,
              color='primary')
+
+
+def season_range_slider(
+    key: str
+) -> Tuple[float, float]:
+    """
+    """
+    # Render season slider
+    season = st.slider(label='Season Range',
+                       min_value=datetime.now().year - 20,
+                       max_value=datetime.now().year,
+                       value=[datetime.now().year - 5, datetime.now().year],
+                       key=key)
+
+    return season
