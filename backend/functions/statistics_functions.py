@@ -348,7 +348,7 @@ def collect_player_statistics_data(
                           '4s', '6s', 'DUCKS', '%TEAM RUNS', 'PLAYER']
 
         dismissal_columns = ['SEASON', 'BOWLED', 'CAUGHT', 'LBW', 'STUMPED',
-                             'RUN OUT', 'NOT OUT', 'DID NOT BAT', 'HIT ROOF', 'OTHER']
+                             'RUN OUT', 'NOT OUT', 'DID NOT BAT', 'HIT ROOF', 'OTHER', 'PLAYER']
 
     # Define bowling data
     if field == 'BOWLING':
@@ -357,7 +357,7 @@ def collect_player_statistics_data(
                           'BEST BOWLING', '5 WICKET HAUL', 'ECONOMY RATE',
                           'STRIKE RATE', 'AVERAGE', '%TEAM WICKETS', 'PLAYER']
 
-        dismissal_columns = ['SEASON', 'BOWLED', 'CAUGHT', 'LBW', 'STUMPED', 'HIT ROOF']
+        dismissal_columns = ['SEASON', 'BOWLED', 'CAUGHT', 'LBW', 'STUMPED', 'HIT ROOF', 'PLAYER']
 
     # Create low level granular stats dataframe
     player_stats_df = pd.DataFrame(columns=metric_columns)
