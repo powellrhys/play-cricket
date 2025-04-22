@@ -1,6 +1,4 @@
 # Import python dependencies
-from datetime import datetime
-import plotly.express as px
 import streamlit as st
 
 # Import data functions
@@ -72,6 +70,7 @@ def render_batting_player_runs_scored(
     data.filter_data_by_player(player_name=batter)
     data.filter_data_by_season_range(season=season)
 
+    # Generate plotting object
     plt = PlotlyPlotter(df=data.return_dataframe(),
                         x='SEASON',
                         y=batting_metric,
@@ -81,14 +80,9 @@ def render_batting_player_runs_scored(
                         color='INNS',
                         color_continuous_scale='Greens')
 
-    fig = plt.plot_bar()
-
-    # Update bar chart settings
-    fig.update_traces(textposition='outside')
-    fig.update_layout(xaxis=dict(type='category',
-                                 categoryorder='array',
-                                 categoryarray=sorted(data.return_dataframe()['SEASON'])),
-                      uniformtext_minsize=8, uniformtext_mode='hide')
+    # Generate bar plot and group x axis by season column
+    plt.plot_bar()
+    fig = plt.group_x_axis(groupby_metric='SEASON')
 
     # Render bar plot
     st.plotly_chart(fig)
@@ -150,6 +144,7 @@ def render_batting_player_how_out(
     data.filter_out_data(column='Dismissal Count',
                                 filter_value=0.0)
 
+    # Generate plotting object
     plt = PlotlyPlotter(df=data.return_dataframe(),
                         x='SEASON',
                         y='Dismissal Count',
@@ -169,13 +164,8 @@ def render_batting_player_how_out(
     if plot_type == 'Line':
         plt.plot_line()
 
-    plt.group_x_axis(groupby_metric='SEASON')
-    fig = plt.render_figure()
-
-    # fig.update_layout(xaxis=dict(type='category',
-    #                              categoryorder='array',
-    #                              categoryarray=sorted(data.return_dataframe()['SEASON'])),
-    #                   uniformtext_minsize=8, uniformtext_mode='hide')
+    # Group X axis by Season column
+    fig = plt.group_x_axis(groupby_metric='SEASON')
 
     # Render plot
     st.plotly_chart(fig)
