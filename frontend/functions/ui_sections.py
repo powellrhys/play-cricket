@@ -3,6 +3,7 @@ import streamlit as st
 
 # Import data functions
 from functions.data_functions import (
+    list_blob_files,
     CricketData,
     Variables
 )
@@ -22,6 +23,48 @@ from functions.mapping import (
 from functions.plot_functions import (
     PlotlyPlotter
 )
+
+def render_extract_data(
+    vars: Variables
+) -> None:
+    """
+    """
+    # Render page title
+    st.title('Extract Club Data')
+
+    # List all files in blob container
+    files, _ = list_blob_files(connection_string=vars.blob_connection_string,
+                               container_name='play-cricket')
+
+    # Configure page columns
+    cols = st.columns([2, 3])
+
+    # Render components within the first column
+    with cols[0]:
+        # Render select box for downloadable files
+        file = st.selectbox(label='File',
+                            options=files)
+
+        # Download file from csv
+        df = CricketData(blob_connection_string=vars.blob_connection_string,
+                         container_name='play-cricket',
+                         blob_name=file).return_dataframe()
+
+        # Render dataframe download button
+        st.download_button(
+            label="Download Data",
+            data=df.to_csv().encode("utf-8"),
+            file_name=file,
+            mime="text/csv",
+            icon=":material/download:"
+        )
+
+    # Render expander for dataframe preview
+    with st.expander(label='Preview Data',
+                     expanded=False):
+
+        # Render data in dataframe format
+        st.dataframe(df)
 
 def render_batting_player_runs_scored(
     data: CricketData,

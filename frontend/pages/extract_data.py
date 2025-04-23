@@ -4,14 +4,17 @@ import streamlit as st
 
 # Import data functions
 from functions.data_functions import (
-    read_csv_from_blob,
-    list_blob_files,
     Variables
 )
 
 # Import custom ui components
 from streamlit_components.ui_components import (
     configure_page_config
+)
+
+# Import UI sections
+from functions.ui_sections import (
+    render_extract_data
 )
 
 # Load environment variables
@@ -29,38 +32,5 @@ if not st.experimental_user.is_logged_in:
 # If user logged in, render streamlit components
 if st.experimental_user.is_logged_in:
 
-    # Render page title
-    st.title('Extract Club Data')
-
-    # List all files in blob container
-    files, _ = list_blob_files(connection_string=vars.blob_connection_string,
-                               container_name='play-cricket')
-
-    cols = st.columns([2, 3])
-
-    with cols[0]:
-
-        # Render file selectbox
-        file = st.selectbox(label='File',
-                            options=files)
-
-        # Download file from csv
-        df = read_csv_from_blob(connection_string=vars.blob_connection_string,
-                                container_name='play-cricket',
-                                blob_name=file)
-
-        # Render dataframe download button
-        st.download_button(
-            label="Download Data",
-            data=df.to_csv().encode("utf-8"),
-            file_name=file,
-            mime="text/csv",
-            icon=":material/download:"
-        )
-
-    # Render expander for dataframe preview
-    with st.expander(label='Preview Data',
-                     expanded=False):
-
-        # Render data in dataframe format
-        st.dataframe(df)
+    # Render extract data ui section
+    render_extract_data(vars=vars)
