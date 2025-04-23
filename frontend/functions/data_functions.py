@@ -142,6 +142,16 @@ class BlobData:
             else:
                 raise ValueError(f"Column: {column} not present in dataframe")
 
+    def filter_by_column(
+        self,
+        column: str,
+        filter_value: str | int
+    ) -> None:
+        """
+        """
+        # Filter out filter value from specified column
+        self.df = self.df[self.df[column] == filter_value]
+
     def filter_out_data(
         self,
         column: str,

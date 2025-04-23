@@ -8,6 +8,16 @@ class PlotlyPlotter:
         self.default_kwargs = kwargs
         self.fig = None
 
+    def plot_scatter(self, **kwargs) -> px.line:
+        """
+        """
+        # Define plot parameters
+        params = {**self.default_kwargs, **kwargs}
+
+        # Generate line plot figure
+        self.fig = px.scatter(self.df, **params)
+        return self.fig
+
     def plot_line(self, **kwargs) -> px.line:
         """
         """

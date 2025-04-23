@@ -169,3 +169,52 @@ def render_batting_player_how_out(
 
     # Render plot
     st.plotly_chart(fig)
+
+def render_batting_club_batting_overview(
+    data: CricketData,
+    vars: Variables
+) -> None:
+    """
+    """
+    # Collect unique drop down metrics
+    seasons_overs = data.collect_unique_column_values('SEASON')
+
+    # Render columns
+    cols = st.columns([2, 1, 2])
+
+    # Render season select box within first columns
+    with cols[0]:
+        season = st.selectbox(label='Season',
+                              options=seasons_overs,
+                              key='club-batting-overview-selectbox-overs')
+
+    # Render metric pills within 3rd column
+    with cols[2]:
+        metric = st.pills(label='Metric',
+                          options=['RUNS', 'HIGH SCORE', 'DUCKS'],
+                          selection_mode='single',
+                          default='RUNS',
+                          key='club-batting-overview-metric-pills')
+
+    # Render data source metadata badge
+    data_source_badge(blob_connection_string=vars.blob_connection_string,
+                      file_name='batting_data.csv')
+
+    # Filter data by season and remove not out marker
+    data.filter_by_column(column='SEASON', filter_value=season)
+    data.remove_not_out_marker(column_name='HIGH SCORE')
+
+    # Generate plotting object
+    plt = PlotlyPlotter(df=data.return_dataframe(),
+                        x="INNS",
+                        y=metric,
+                        title=f"{metric} vs Innings",
+                        labels={"INNS": "Innings", "RUNS": "Runs"},
+                        trendline='ols',
+                        hover_data=["PLAYER", "AVG", "HIGH SCORE"]
+                        )
+
+    fig = plt.plot_scatter().update_traces(marker=dict(color='#316151'))
+
+    # Render Scatter plot
+    st.plotly_chart(fig)
