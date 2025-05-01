@@ -192,6 +192,16 @@ class BlobData:
         """
         return self.df
 
+    def aggregate_dataframe(
+        self,
+        groupby_columns: list,
+        agg_columns: list,
+        agg_func: str = 'sum'
+    ) -> None:
+        """
+        """
+        self.df = self.df.groupby(groupby_columns, as_index=False)[agg_columns].agg(agg_func)
+
 class CricketData(BlobData):
     def remove_all_season_data(
         self,

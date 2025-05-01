@@ -261,3 +261,153 @@ def render_batting_club_batting_overview(
 
     # Render Scatter plot
     st.plotly_chart(fig)
+
+
+def render_bowling_club_bowling_effectiveness(
+    data: CricketData,
+    vars: Variables
+) -> None:
+    # Collect unique seasons found in dataset
+    seasons = data.collect_unique_column_values(column_name='SEASON')
+
+    # Render streamlit columns
+    cols = st.columns([2, 1, 1, 1])
+
+    # Render components within first column
+    with cols[0]:
+
+        # Render season selectbox
+        season = st.selectbox(label='Season',
+                                    options=seasons,
+                                    key='club-bowling-effectiveness-season-selectbox')
+
+    # Render components within 3rd column
+    with cols[2]:
+
+        # Render metric pills
+        metric = st.pills(label='Metric',
+                          options=['WICKETS', 'RUNS'],
+                          selection_mode='single',
+                          default='WICKETS',
+                          key='club-bowling-effectiveness-metric-pills')
+
+    # Filter bowling data by season
+    data.filter_by_column(column='SEASON', filter_value=season)
+
+    # Render data source metadata badge
+    data_source_badge(blob_connection_string=vars.blob_connection_string,
+                      file_name='bowling_data.csv')
+
+    # Generate plotting object
+    plt = PlotlyPlotter(df=data.return_dataframe(),
+                        x='OVERS',
+                        y=metric,
+                        hover_name='PLAYER',
+                        trendline='ols',
+                        title=f'{metric.capitalize()} for every over bowled')
+
+    # Generate scatter plot
+    fig = plt.plot_scatter().update_traces(marker=dict(color='#316151'))
+
+    # Render scatter plot
+    st.plotly_chart(fig)
+
+def render_bowling_club_extras_analysis(
+    data: CricketData,
+    vars: Variables
+) -> None:
+    """
+    """
+    # Render columns
+    cols = st.columns([2, 1, 1, 1])
+
+    # Render components within first column
+    with cols[0]:
+
+        # Render selectbox for season metric
+        season_extras = st.selectbox(label='Season',
+                                        options=seasons_extras,
+                                        key='selectbox-extras')
+
+    # Render components within the second column
+    with cols[2]:
+
+        # Render metric pills
+        metric_extras = st.pills(label='Metric',
+                                    options=['WIDES', 'NO BALLS'],
+                                    selection_mode='single',
+                                    default='WIDES',
+                                    key='pills-extras')
+
+    # Render components within the 4th column
+    with cols[3]:
+
+        # Render normalise pill
+        normalise_extras = st.pills(label='Normalise Data',
+                                    options=[True, False],
+                                    selection_mode='single',
+                                    default=False,
+                                    key='pills-extras-normalise')
+
+    # Render data source metadata badge
+    data_source_badge(blob_connection_string=vars.blob_connection_string,
+                        file_name='bowling_match_data.csv',
+                        additional_comments=f'Data dated back to {oldest_season} season')
+
+
+def render_bowling_club_wicket_taking(
+    data: CricketData,
+    vars: Variables
+) -> None:
+    """
+    """
+    # Collect a list of unique seasons from dataframe
+    season = data.collect_unique_column_values(column_name='SEASON')
+
+    # Render columns
+    cols = st.columns([2, 1, 1, 1])
+
+    # Render components within first column
+    with cols[0]:
+
+        # Render season select box
+        season = st.selectbox(label='Season',
+                              options=season,
+                              key='club-bowling-extras-season-selectbox')
+
+    # Render data source metadata badge
+    data_source_badge(blob_connection_string=vars.blob_connection_string,
+                      file_name='bowling_dismissals.csv')
+
+    # Filter data by season
+    data.filter_by_column(column='SEASON', filter_value=season)
+
+    # Group data by season and aggregate wicket taking types
+    data.aggregate_dataframe(groupby_columns=['SEASON'],
+                             agg_columns=['BOWLED', 'CAUGHT', 'LBW', 'STUMPED', 'HIT ROOF'],
+                             agg_func='sum')
+
+    # Collet dataframe, drop season column and sum each column, rename dataframe columns
+    wicket_taking_df = data.return_dataframe()
+    wicket_taking_df = wicket_taking_df.drop(columns=['SEASON']).sum().reset_index()
+    wicket_taking_df.columns = ['Dismissal Type', 'Count']
+
+    # Generate plotting object
+    plt = PlotlyPlotter(df=wicket_taking_df,
+                        names='Dismissal Type',
+                        values='Count',
+                        color='Dismissal Type',
+                        title="Total Dismissals by Type",
+                        color_discrete_map={
+                            'BOWLED': '#316151',
+                            'CAUGHT': '#FFE31A',
+                            'LBW': '#A63D40',
+                            'STUMPED': '#6495ED',
+                            'Hit ROOF': '#D2B48C'
+                        })
+
+    # Generate pie plot figure
+    fig = plt.plot_pie()
+
+    # Render pie chart
+    st.plotly_chart(fig)

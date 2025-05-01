@@ -48,6 +48,16 @@ class PlotlyPlotter:
         self.fig = px.area(self.df, **params)
         return self.fig
 
+    def plot_pie(self, **kwargs) -> px.pie:
+        """
+        """
+        # Define plot parameters
+        params = {**self.default_kwargs, **kwargs}
+
+        # Generate pie plot figure
+        self.fig = px.pie(self.df, **params)
+        return self.fig
+
     def group_x_axis(self,
                      groupby_metric: str):
         """

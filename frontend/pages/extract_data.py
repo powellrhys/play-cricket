@@ -2,17 +2,13 @@
 from dotenv import load_dotenv
 import streamlit as st
 
-# Import data functions
-from functions.data_functions import (
-    Variables
-)
-
-# Import custom ui components
+# Import project dependencies
 from streamlit_components.ui_components import (
     configure_page_config
 )
-
-# Import UI sections
+from functions.data_functions import (
+    Variables
+)
 from functions.ui_sections import (
     render_extract_data
 )

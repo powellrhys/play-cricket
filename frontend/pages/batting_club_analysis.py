@@ -2,18 +2,14 @@
 from dotenv import load_dotenv
 import streamlit as st
 
-# Import data functions
+# Import project dependencies
+from streamlit_components.ui_components import (
+    configure_page_config
+)
 from functions.data_functions import (
     CricketData,
     Variables
 )
-
-# Import custom ui components
-from streamlit_components.ui_components import (
-    configure_page_config
-)
-
-# Import streamlit sections
 from functions.ui_sections import (
     render_batting_club_batting_overview
 )
