@@ -1,27 +1,22 @@
 # Import python dependencies
 import streamlit as st
+import pandas as pd
 
-# Import data functions
+# Import project functions
 from functions.data_functions import (
     list_blob_files,
     CricketData,
     Variables
 )
-
-# Import project ui components
+from functions.plot_functions import (
+    PlotlyPlotter
+)
 from functions.ui_components import (
     season_range_slider,
     data_source_badge
 )
-
-# Import project mapping variables
 from functions.mapping import (
     batting_dismissal_colour_map
-)
-
-# Import plotter class
-from functions.plot_functions import (
-    PlotlyPlotter
 )
 
 def render_extract_data(
@@ -318,41 +313,120 @@ def render_bowling_club_extras_analysis(
 ) -> None:
     """
     """
+    # Collect year from bowling match report data
+    data.convert_column_to_datetime(column_name='DATE')
+    data.create_year_column(date_column_name='DATE', year_column_name='SEASON')
+
+    # Collect unique list of seasons
+    seasons = data.collect_unique_column_values(column_name='SEASON')
+
+    # Perform transformations and append data to seasons lists
+    oldest_season = min(seasons)
+    seasons.append('ALL')
+    seasons.reverse()
+
     # Render columns
     cols = st.columns([2, 1, 1, 1])
 
-    # Render components within first column
+    # Render season selectbox within first column
     with cols[0]:
+        season = st.selectbox(label='Season',
+                              options=seasons,
+                              key='club-bowling-extras-season-selectbox')
 
-        # Render selectbox for season metric
-        season_extras = st.selectbox(label='Season',
-                                        options=seasons_extras,
-                                        key='selectbox-extras')
-
-    # Render components within the second column
+    # Render metric pills within the second column
     with cols[2]:
+        metric = st.pills(label='Metric',
+                          options=['WIDES', 'NO BALLS'],
+                          selection_mode='single',
+                          default='WIDES',
+                          key='club-bowling-extras-metric-pills')
 
-        # Render metric pills
-        metric_extras = st.pills(label='Metric',
-                                    options=['WIDES', 'NO BALLS'],
-                                    selection_mode='single',
-                                    default='WIDES',
-                                    key='pills-extras')
-
-    # Render components within the 4th column
+    # Render normalise pill within the 4th column
     with cols[3]:
-
-        # Render normalise pill
-        normalise_extras = st.pills(label='Normalise Data',
-                                    options=[True, False],
-                                    selection_mode='single',
-                                    default=False,
-                                    key='pills-extras-normalise')
+        normalise = st.pills(label='Normalise Data',
+                             options=[True, False],
+                             selection_mode='single',
+                             default=False,
+                             key='club-bowling-extras-normalise-pill')
 
     # Render data source metadata badge
     data_source_badge(blob_connection_string=vars.blob_connection_string,
-                        file_name='bowling_match_data.csv',
-                        additional_comments=f'Data dated back to {oldest_season} season')
+                      file_name='bowling_match_data.csv',
+                      additional_comments=f'Data dated back to {oldest_season} season')
+
+    # Collect bowling data and convert to dataframe
+    bowling_match_data_df = data.return_dataframe()
+
+    # Apply lambda function to calculate the number of ball delivered
+    bowling_match_data_df['BALLS'] = \
+        bowling_match_data_df['OVERS'] \
+        .apply(lambda x: (int(str(x).split('.')[0]) * 6) + int(str(x).split('.')[1][0])
+               if '.' in str(x) else int(x) * 6)
+
+    # Aggregate all data
+    all_data = bowling_match_data_df.groupby(['BOWLER', 'VENUE'], as_index=False)[
+        ['BALLS', 'MAIDENS', 'WICKETS', 'RUNS', 'WIDES', 'NO BALLS']
+    ].sum()
+
+    # Add season column to aggregated dataframe
+    all_data['SEASON'] = 'ALL'
+
+    # Group data by bowler, season and venue
+    bowling_match_data_df = bowling_match_data_df.groupby(['BOWLER', 'SEASON', 'VENUE'], as_index=False)[
+        ['BALLS', 'MAIDENS', 'WICKETS', 'RUNS', 'WIDES', 'NO BALLS']
+    ].sum()
+
+    # Append aggregated data to dataframe
+    bowling_match_data_df = pd.concat([bowling_match_data_df, all_data], ignore_index=True)
+
+    # Filter bowling report data by season
+    bowling_match_data_df = bowling_match_data_df[bowling_match_data_df['SEASON'] == season]
+
+    # Create dynamic metric column
+    bowling_match_data_df['METRIC'] = bowling_match_data_df[metric]
+
+    # Normalise data by number of balls delivered if required
+    y_axis_label = metric.capitalize()
+    if normalise:
+        bowling_match_data_df['METRIC'] = bowling_match_data_df['METRIC'] / (bowling_match_data_df['BALLS'] / 6)
+        y_axis_label = f'{metric.capitalize()} per Over'
+
+    # Sort data by metric count
+    bowling_match_data_df = bowling_match_data_df.sort_values(by='METRIC', ascending=False)
+
+    # Calculate total metric per bowler (summing across all venues)
+    df_sorted = bowling_match_data_df.groupby('BOWLER', as_index=False)['METRIC'].sum()
+
+    # Sort by total metric (descending)
+    df_sorted = df_sorted.sort_values(by='METRIC', ascending=False)
+
+    # Merge sorted order back to original df_grouped
+    bowling_match_data_df = bowling_match_data_df.set_index('BOWLER').loc[df_sorted['BOWLER']].reset_index()
+
+    # Remove rows where metric is equal to zero
+    bowling_match_data_df = bowling_match_data_df[bowling_match_data_df['METRIC'] != 0]
+
+    # Generate plotting object
+    plt = PlotlyPlotter(df=bowling_match_data_df,
+                        x='BOWLER',
+                        y='METRIC',
+                        color='VENUE',
+                        barmode='group',
+                        title=f"{y_axis_label} Conceded by Bowlers at Different Venues",
+                        labels={'METRIC': y_axis_label},
+                        color_discrete_map={'Home': '#316151', 'Away': '#FFE31A'},
+                        hover_name='BOWLER',
+                        hover_data={
+                            'BALLS': True,
+                            metric: True
+                        })
+
+    # Generate bar plot
+    fig = plt.plot_bar()
+
+    # Render figure
+    st.plotly_chart(fig)
 
 
 def render_bowling_club_wicket_taking(
@@ -373,7 +447,7 @@ def render_bowling_club_wicket_taking(
         # Render season select box
         season = st.selectbox(label='Season',
                               options=season,
-                              key='club-bowling-extras-season-selectbox')
+                              key='club-bowling-wicket-season-selectbox')
 
     # Render data source metadata badge
     data_source_badge(blob_connection_string=vars.blob_connection_string,

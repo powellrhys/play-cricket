@@ -120,7 +120,7 @@ class BlobData:
             raise ValueError(f'Column: {column_name} is not present in dataframe')
 
         # Collect unique values from dataframe column
-        unique_values = self.df[column_name].unique()
+        unique_values = list(self.df[column_name].unique())
 
         return unique_values
 
@@ -202,7 +202,25 @@ class BlobData:
         """
         self.df = self.df.groupby(groupby_columns, as_index=False)[agg_columns].agg(agg_func)
 
+    def convert_column_to_datetime(
+        self,
+        column_name: str
+    ) -> None:
+        """
+        """
+        self.df[column_name] = pd.to_datetime(self.df[column_name])
+
+    def create_year_column(
+        self,
+        date_column_name: str,
+        year_column_name: str
+    ) -> None:
+        """
+        """
+        self.df[year_column_name] = self.df[date_column_name].dt.year
+
 class CricketData(BlobData):
+
     def remove_all_season_data(
         self,
         season_column: str = 'SEASON'
