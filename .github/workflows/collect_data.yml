@@ -5,10 +5,14 @@ on:
   pull_request:
     types:
       - opened
+    paths:
+      - 'backend/**'
   push:
     branches:
       - main
       - feature/*
+    paths:
+      - 'backend/**'
   schedule:
     - cron: '0 0 * * TUE'
 
