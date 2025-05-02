@@ -485,3 +485,161 @@ def render_bowling_club_wicket_taking(
 
     # Render pie chart
     st.plotly_chart(fig)
+
+
+def render_bowling_player_wicket_taking(
+    data: CricketData,
+    vars: Variables
+) -> None:
+    """
+    """
+    # Remove 'ALL' from season column and cast season column values as integers
+    data.remove_all_season_data(season_column='SEASON')
+    data.cast_column(column_name='SEASON', column_type=int)
+
+    # Collect a list of unique bowlers and season
+    bowlers = data.collect_unique_column_values(column_name='PLAYER')
+
+    # Render columns
+    cols = st.columns([1, 1, 1])
+
+    # Render bowler selectbox within first column
+    with cols[0]:
+        bowler = st.selectbox(label='Bowler',
+                              options=bowlers,
+                              key='player-bowling-wicket-bowler-selectbox')
+
+    # Render season range component the 3rd column
+    with cols[2]:
+        season = season_range_slider(key='player-bowling-wicket-taking-season-slider')
+
+    # Render data source metadata badge
+    data_source_badge(blob_connection_string=vars.blob_connection_string,
+                      file_name='bowling_dismissals.csv')
+
+    # Filter data based on streamlit inputs
+    data.filter_data_by_player(player_name=bowler, column_name='PLAYER')
+    data.filter_data_by_season_range(season=season, column_name='SEASON')
+
+    data.melt_dataframe(id_vars=['SEASON'],
+                        value_vars=['BOWLED', 'CAUGHT', 'LBW', 'STUMPED', 'HIT ROOF'],
+                        var_name='TYPE',
+                        value_name='COUNT')
+
+    # Return dataframe and remove counts equal to zero
+    dismissal_data_df = data.return_dataframe()
+    dismissal_data_df = dismissal_data_df[dismissal_data_df['COUNT'] > 0]
+
+    plt = PlotlyPlotter(df=dismissal_data_df,
+                        x='SEASON',
+                        y='COUNT',
+                        color='TYPE',
+                        barmode='group',
+                        title="Bowled and Caught Count by Season",
+                        labels={'SEASON': 'Season', 'COUNT': 'Wickets'},
+                        color_discrete_map={
+                            'BOWLED': '#316151',
+                            'CAUGHT': '#FFE31A',
+                            'LBW': '#A63D40',
+                            'STUMPED': '#6495ED',
+                            'Hit ROOF': '#D2B48C'})
+
+    # Render bar plot
+    st.plotly_chart(plt.plot_bar())
+
+
+def render_bowling_player_home_away_performance(
+    data: CricketData,
+    vars: Variables
+) -> None:
+    """
+    """
+    # Collect year from bowling match report data
+    data.convert_column_to_datetime(column_name='DATE')
+    data.create_year_column(date_column_name='DATE', year_column_name='SEASON')
+
+    # Collect unique season values from dataframes
+    bowlers = data.collect_unique_column_values(column_name='BOWLER')
+
+    # Render columns
+    cols = st.columns([2, 1, 2, 2])
+
+    # Render bowler selectbox within first column
+    with cols[0]:
+        bowler = st.selectbox(label='Bowler',
+                              options=bowlers,
+                              key='player-bowling-performance-bowler-selectbox')
+
+    # Render metric pills within the 3rd columns
+    with cols[2]:
+        metric_extras = st.pills(label='Metric',
+                                 options=['WIDES', 'NO BALLS', 'WICKETS'],
+                                 selection_mode='single',
+                                 default='WIDES',
+                                 key='player-bowling-performance-metric-pills')
+
+    # Render season slider component within 3rd column
+    with cols[3]:
+        season = season_range_slider(key='player-bowling-performance-season-slider')
+
+    # Render data source metadata badge
+    data_source_badge(blob_connection_string=vars.blob_connection_string,
+                      file_name='bowling_match_data.csv')
+
+    # Filter data based on streamlit inputs
+    data.filter_data_by_player(player_name=bowler, column_name='BOWLER')
+    data.filter_data_by_season_range(season=season, column_name='SEASON')
+
+    # # Filter data based on bowler selected
+    # bowling_match_data_df = bowling_match_data_df[bowling_match_data_df['BOWLER'] == bowler]
+
+    # Return bowling match data
+    bowling_match_data_df = data.return_dataframe()
+
+    # Apply lambda function to calculate the number of ball delivered
+    bowling_match_data_df['BALLS'] = \
+        bowling_match_data_df['OVERS'] \
+        .apply(lambda x: (int(str(x).split('.')[0]) * 6) + int(str(x).split('.')[1][0])
+               if '.' in str(x) else int(x) * 6)
+
+    # Group data by bowler, season and venue
+    bowling_match_data_df = bowling_match_data_df.groupby(['BOWLER', 'SEASON', 'VENUE'], as_index=False)[
+        ['BALLS', 'MAIDENS', 'WICKETS', 'RUNS', 'WIDES', 'NO BALLS']
+    ].sum()
+
+    # Create dynamic metric column
+    bowling_match_data_df['METRIC'] = bowling_match_data_df[metric_extras]
+
+    plt = PlotlyPlotter(df=bowling_match_data_df,
+                        x='SEASON',
+                        y=metric_extras,
+                        color='VENUE',
+                        barmode='group',
+                        title="Conceded by Bowlers at Different Venues",
+                        labels={'METRIC': metric_extras},
+                        color_discrete_map={'Home': '#316151', 'Away': '#FFE31A'},
+                        hover_name='BOWLER',
+                        hover_data={
+                            'BALLS': True,
+                            metric_extras: True
+                        })
+
+    # # Configure bar chart
+    # fig = px.bar(
+    #     bowling_match_data_df,
+    #     x='SEASON',
+    #     y=metric_extras,
+    #     color='VENUE',
+    #     barmode='group',
+    #     title="Conceded by Bowlers at Different Venues",
+    #     labels={'METRIC': metric_extras},
+    #     color_discrete_map={'Home': '#316151', 'Away': '#FFE31A'},
+    #     hover_name='BOWLER',
+    #     hover_data={
+    #         'BALLS': True,
+    #         metric_extras: True
+    #     }
+    # )
+
+    # Render plot
+    st.plotly_chart(plt.plot_bar())

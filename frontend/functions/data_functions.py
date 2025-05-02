@@ -219,6 +219,15 @@ class BlobData:
         """
         self.df[year_column_name] = self.df[date_column_name].dt.year
 
+    def cast_column(
+        self,
+        column_name: str,
+        column_type: type
+    ) -> None:
+        """
+        """
+        self.df[column_name] = self.df[column_name].astype(column_type)
+
 class CricketData(BlobData):
 
     def remove_all_season_data(
