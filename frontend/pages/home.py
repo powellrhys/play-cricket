@@ -2,14 +2,12 @@
 from dotenv import load_dotenv
 import streamlit as st
 
-# Import data functions
-from functions.data_functions import (
-    Variables
-)
-
-# Import custom ui components
+# Import project dependencies
 from streamlit_components.ui_components import (
     configure_page_config
+)
+from functions.data_functions import (
+    Variables
 )
 
 # Load environment variables
@@ -30,7 +28,7 @@ if st.experimental_user.is_logged_in:
     # Render page title
     st.title(f'{vars.club.capitalize()} CC Analysis')
 
-    # Render contaienr
+    # Render container
     with st.container(border=True):
 
         # Render application overview paragraph
