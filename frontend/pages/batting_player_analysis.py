@@ -2,7 +2,7 @@
 from dotenv import load_dotenv
 import streamlit as st
 
-# Import project functions
+# Import project dependencies
 from streamlit_components.ui_components import (
     configure_page_config
 )
@@ -56,6 +56,6 @@ if st.experimental_user.is_logged_in:
                                  container_name='play-cricket',
                                  blob_name='batting_how_out.csv')
 
-        # Render PLayer batting how out section
+        # Render player batting how out section
         render_batting_player_how_out(data=how_out_df,
                                       vars=vars)

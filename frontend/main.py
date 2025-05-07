@@ -18,6 +18,7 @@ vars = Variables()
 if not st.experimental_user.is_logged_in:
     st.login('auth0')
 
+# Render application if user is logged in
 if st.experimental_user.is_logged_in:
     pg = get_navigation(club=vars.club)
     pg.run()
