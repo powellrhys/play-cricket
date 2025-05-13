@@ -5,7 +5,6 @@ import streamlit as st
 from functions.data_functions import (
     Variables
 )
-
 from functions.navigation import (
     get_navigation
 )
