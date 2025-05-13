@@ -3,17 +3,21 @@ import streamlit as st
 import pandas as pd
 
 # Import project functions
+from streamlit_components.data_functions import (
+    list_blob_files
+)
+from streamlit_components.plot_functions import (
+    PlotlyPlotter
+)
+from streamlit_components.ui_components import (
+    data_source_badge
+)
 from functions.data_functions import (
-    list_blob_files,
     CricketData,
     Variables
 )
-from functions.plot_functions import (
-    PlotlyPlotter
-)
 from functions.ui_components import (
     season_range_slider,
-    data_source_badge
 )
 from functions.mapping import (
     batting_dismissal_colour_map
