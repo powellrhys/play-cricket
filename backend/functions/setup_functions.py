@@ -32,28 +32,6 @@ def configure_logger() -> logging.Logger:
 
     return logger
 
-
-class Variables:
-    """
-    Class to collect environmental variables from .env file
-
-    Args: None
-
-    Raise: None
-
-    Return: None
-    """
-    def __init__(self):
-
-        # Collect environmental variables
-        self.club = os.getenv('club')
-        self.email = os.getenv('email')
-        self.password = os.getenv('password')
-        self.headless = eval(os.getenv('headless'))
-        self.driver_path = os.getenv('driver_path')
-        self.blob_connection_string = os.getenv('blob_connection_string')
-
-
 def configure_driver(
     driver_path: str = 'chromedriver.exe',
     headless: bool = False
