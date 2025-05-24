@@ -27,12 +27,14 @@ class APIService:
     def __init__(
             self,
             api_token: str,
-            site_id: int
+            site_id: int,
+            variables: Variables
     ) -> None:
         """
         """
         self._api_token = api_token
         self._site_id = site_id
+        self.vars = variables
         self.base_url = "http://play-cricket.com/api/v2/"
 
     def collect_match_ids(
@@ -57,11 +59,11 @@ class APIService:
                 match['id']
                 for match in matches
                 if (
-                    "Creigiau" in match['home_club_name'] and
-                    match['home_team_name'] in ["1st XI", "2nd XI"]
+                    self.vars.club in match['home_club_name'] and
+                    match['home_team_name'] in ["1st XI"]#, "2nd XI"]
                 ) or (
-                    "Creigiau" in match['away_club_name'] and
-                    match['away_team_name'] in ["1st XI", "2nd XI"]
+                    self.vars.club in match['away_club_name'] and
+                    match['away_team_name'] in ["1st XI"]#, "2nd XI"]
                 )
             ]
 
@@ -76,7 +78,7 @@ class APIService:
 
         self.all_batting_df = pd.DataFrame()
         self.all_bowling_df = pd.DataFrame()
-        for match_id in self.match_ids:
+        for i, match_id in enumerate(self.match_ids, start=1):
 
             params = {
                 "match_id": match_id,
@@ -85,33 +87,79 @@ class APIService:
             response = requests.get(url=url, params=params)
             data = response.json()
 
+            match_date = data['match_details'][0]['match_date']
             venue = data['match_details'][0]['home_club_name']
-            if 'creigiau' in venue.lower():
+
+            if self.vars.club in venue.lower():
                 home_away = 'HOME'
+                opponent = data['match_details'][0]['away_club_name']
             else:
                 home_away = 'AWAY'
+                opponent = data['match_details'][0]['home_club_name']
 
             innings = data['match_details'][0]['innings']
 
+            print(f"{i}/{len(self.match_ids)} - Collecting data for {match_date} | {opponent} ({home_away})")
+
+            bowling_innings = []
+            batting_innings = []
             for inning in innings:
-                if 'creigiau' not in inning['team_batting_name'].lower():
+                if self.vars.club not in inning['team_batting_name'].lower():
                     bowling_innings = inning['bowl']
 
-                if 'creigiau' in inning['team_batting_name'].lower():
+                if self.vars.club in inning['team_batting_name'].lower():
                     batting_innings = inning['bat']
 
-            bowling_df = pd.DataFrame(bowling_innings)
-            bowling_df['HOME_AWAY'] = home_away
-            bowling_df['VENUE'] = venue
-            batting_df = pd.DataFrame(batting_innings)
-            batting_df['HOME_AWAY'] = home_away
-            batting_df['VENUE'] = venue
+            if bowling_innings:
+                bowling_df = pd.DataFrame(bowling_innings)
+                bowling_df['home_away'] = home_away
+                bowling_df['opponent'] = opponent
+                bowling_df['match_date'] = match_date
+                bowling_df['match_date'] = pd.to_datetime(bowling_df['match_date'], format='%d/%m/%Y')
+                bowling_df['year'] = bowling_df['match_date'].dt.year
 
-            self.all_bowling_df = pd.concat([self.all_bowling_df, bowling_df])
-            self.all_batting_df = pd.concat([self.all_batting_df, batting_df])
+                self.all_bowling_df = pd.concat([self.all_bowling_df, bowling_df])
 
-        # print(all_bowling_df.head())
-        # print(all_batting_df.head())
+            if batting_innings:
+                batting_df = pd.DataFrame(batting_innings)
+                batting_df = batting_df.drop(columns=['bowler_id',
+                                                      'bowler_name',
+                                                      'fielder_name',
+                                                      'fielder_id'],
+                                             axis=0)
+                batting_df['home_away'] = home_away
+                batting_df['opponent'] = opponent
+                batting_df['match_date'] = match_date
+                batting_df['match_date'] = pd.to_datetime(batting_df['match_date'], format='%d/%m/%Y')
+                batting_df['year'] = batting_df['match_date'].dt.year
+
+                dismissal_map = {
+                    'b': 'Bowled',
+                    'ct': 'Caught',
+                    'lbw': 'LBW',
+                    'not out': 'Not Out',
+                    'run out': 'Run Out',
+                    'did not bat': 'Did Not Bat',
+                    'st': 'Stumped'
+                }
+
+                batting_df['how_out'] = batting_df['how_out'].map(dismissal_map).fillna('Other')
+
+                self.all_batting_df = pd.concat([self.all_batting_df, batting_df])
+
+    def generate_how_out_df(self) -> None:
+        """
+        """
+        self.how_out_df = self.all_batting_df \
+            .groupby(['batsman_name', 'year'])['how_out'].value_counts().unstack(fill_value=0) \
+            .reset_index()
+
+        self. how_out_df = self.how_out_df.rename(columns={
+            'batsman_name': 'player',
+            'year': 'season'
+        })
+
+        self.how_out_df.columns = [col.upper() for col in self.how_out_df.columns]
 
 
 def write_df_to_blob(

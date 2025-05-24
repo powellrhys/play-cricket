@@ -13,18 +13,21 @@ load_dotenv()
 vars = Variables()
 
 app = APIService(api_token=vars.api_token,
-                 site_id=int(vars.site_id))
+                 site_id=int(vars.site_id),
+                 variables=vars)
 
 app.collect_match_ids(seasons=[2024])
 
 app.collect_match_data()
 
-write_df_to_blob(df=app.all_bowling_df,
-                 connection_string=vars.blob_connection_string,
-                 container_name='play-cricket',
-                 blob_name='bowling_data.csv')
+app.generate_how_out_df()
 
-write_df_to_blob(df=app.all_batting_df,
+write_df_to_blob(df=app.how_out_df,
                  connection_string=vars.blob_connection_string,
                  container_name='play-cricket',
-                 blob_name='batting_data.csv')
+                 blob_name='batting_how_out.csv')
+
+# write_df_to_blob(df=app.all_batting_df,
+#                  connection_string=vars.blob_connection_string,
+#                  container_name='play-cricket',
+#                  blob_name='batting_data.csv')
