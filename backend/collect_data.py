@@ -22,12 +22,21 @@ app.collect_match_data()
 
 app.generate_how_out_df()
 
+app.generate_batting_summary_df()
+
+app.capitalize_df_headers()
+
 write_df_to_blob(df=app.how_out_df,
                  connection_string=vars.blob_connection_string,
                  container_name='play-cricket',
                  blob_name='batting_how_out.csv')
 
-# write_df_to_blob(df=app.all_batting_df,
-#                  connection_string=vars.blob_connection_string,
-#                  container_name='play-cricket',
-#                  blob_name='batting_data.csv')
+write_df_to_blob(df=app.all_batting_df,
+                 connection_string=vars.blob_connection_string,
+                 container_name='play-cricket',
+                 blob_name='batting_data.csv')
+
+write_df_to_blob(df=app.all_bowling_df,
+                 connection_string=vars.blob_connection_string,
+                 container_name='play-cricket',
+                 blob_name='bowling_data.csv')

@@ -59,10 +59,10 @@ class APIService:
                 match['id']
                 for match in matches
                 if (
-                    self.vars.club in match['home_club_name'] and
+                    self.vars.club in match['home_club_name'].lower() and
                     match['home_team_name'] in ["1st XI"]#, "2nd XI"]
                 ) or (
-                    self.vars.club in match['away_club_name'] and
+                    self.vars.club in match['away_club_name'].lower() and
                     match['away_team_name'] in ["1st XI"]#, "2nd XI"]
                 )
             ]
@@ -78,7 +78,7 @@ class APIService:
 
         self.all_batting_df = pd.DataFrame()
         self.all_bowling_df = pd.DataFrame()
-        for i, match_id in enumerate(self.match_ids, start=1):
+        for i, match_id in enumerate(self.match_ids[0:6], start=1):
 
             params = {
                 "match_id": match_id,
@@ -154,12 +154,50 @@ class APIService:
             .groupby(['batsman_name', 'year'])['how_out'].value_counts().unstack(fill_value=0) \
             .reset_index()
 
-        self. how_out_df = self.how_out_df.rename(columns={
+        self.how_out_df = self.how_out_df.rename(columns={
             'batsman_name': 'player',
             'year': 'season'
         })
 
         self.how_out_df.columns = [col.upper() for col in self.how_out_df.columns]
+
+    def generate_batting_summary_df(self) -> None:
+        """
+        """
+        summary_batting_df = self.all_batting_df
+        summary_batting_df['runs'] = pd.to_numeric(summary_batting_df['runs'], errors='coerce')
+        summary_batting_df['fours'] = pd.to_numeric(summary_batting_df['fours'], errors='coerce')
+        summary_batting_df['sixes'] = pd.to_numeric(summary_batting_df['sixes'], errors='coerce')
+        summary_batting_df['50s'] = ((summary_batting_df['runs'] >= 50) &
+                                     (summary_batting_df['runs'] < 100)).astype(int)
+        summary_batting_df['100s'] = (summary_batting_df['runs'] >= 100).astype(int)
+        summary_batting_df['ducks'] = (summary_batting_df['runs'] == 0).astype(int)
+
+        summary_batting_df = summary_batting_df \
+            .groupby(['batsman_name', 'year']) \
+            .agg({
+                'runs': ['sum', 'max'],
+                '50s': 'sum',
+                '100s': 'sum',
+                'fours': 'sum',
+                'sixes': 'sum',
+                'ducks': 'sum',
+            }).reset_index()
+
+        input_columns = ['batsman_name', 'year', 'runs_sum', 'runs_max', '50s_sum', '100s_sum', 'fours_sum', 'sixes_sum', 'ducks']
+        output_columns = ['PLAYER', 'YEAR', 'RUNS', 'HIGH SCORE', '50s', '100s', '4s', '6s', 'ducks']
+
+        summary_batting_df.columns = input_columns
+        summary_batting_df.rename(columns=dict(zip(input_columns, output_columns)), inplace=True)
+
+        self.summary_batting_df = summary_batting_df
+
+
+    def capitalize_df_headers(self) -> None:
+        """
+        """
+        self.all_batting_df.columns = [col.replace('_', '').upper() for col in self.all_batting_df.columns]
+        self.all_bowling_df.columns = [col.upper() for col in self.all_bowling_df.columns]
 
 
 def write_df_to_blob(
