@@ -54,7 +54,7 @@ if st.experimental_user.is_logged_in:
         # Create CricketData object and read in bowling_match_data.csv data from blob
         bowling_match_data_df = CricketData(blob_connection_string=vars.blob_connection_string,
                                             container_name='play-cricket',
-                                            blob_name='bowling_match_data.csv')
+                                            blob_name='bowling_data.csv')
 
         # Render player bowling home and away performance
         render_bowling_player_home_away_performance(data=bowling_match_data_df,

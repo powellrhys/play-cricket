@@ -20,7 +20,7 @@ def season_range_slider(
     """
     # Render season slider
     season = st.slider(label='Season Range',
-                       min_value=datetime.now().year - 20,
+                       min_value=datetime.now().year - 10,
                        max_value=datetime.now().year,
                        value=[datetime.now().year - 5, datetime.now().year],
                        key=key)

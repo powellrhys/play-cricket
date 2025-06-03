@@ -54,7 +54,7 @@ if st.experimental_user.is_logged_in:
         # Create CricketData object and read in bowling_match_data.csv data from blob
         bowling_match_data = CricketData(blob_connection_string=vars.blob_connection_string,
                                          container_name='play-cricket',
-                                         blob_name='bowling_match_data.csv')
+                                         blob_name='bowling_data.csv')
 
         # Render bowling extras analysis section
         render_bowling_club_extras_analysis(data=bowling_match_data, vars=vars)

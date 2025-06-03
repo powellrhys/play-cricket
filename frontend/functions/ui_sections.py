@@ -126,7 +126,7 @@ def render_batting_player_runs_scored(
 
     # Transform season column to only include numeric values & remove not out marker
     data.remove_all_season_data()
-    data.remove_not_out_marker()
+    # data.remove_not_out_marker()
 
     # Filter data based on streamlit inputs
     data.filter_data_by_player(player_name=batter)
@@ -296,7 +296,7 @@ def render_batting_club_batting_overview(
 
     # Filter data by season and remove not out marker
     data.filter_by_column(column='SEASON', filter_value=season)
-    data.remove_not_out_marker(column_name='HIGH SCORE')
+    # data.remove_not_out_marker(column_name='HIGH SCORE')
 
     # Generate plotting object
     plt = PlotlyPlotter(df=data.return_dataframe(),
@@ -305,7 +305,7 @@ def render_batting_club_batting_overview(
                         title=f"{metric} vs Innings",
                         labels={"INNS": "Innings", "RUNS": "Runs"},
                         trendline='ols',
-                        hover_data=["PLAYER", "AVG", "HIGH SCORE"]
+                        hover_data=["PLAYER", "HIGH SCORE"]
                         )
 
     fig = plt.plot_scatter().update_traces(marker=dict(color='#316151'))
@@ -405,8 +405,8 @@ def render_bowling_club_extras_analysis(
         - The `ALL` season option is included to show aggregate data across all seasons.
     """
     # Collect year from bowling match report data
-    data.convert_column_to_datetime(column_name='DATE')
-    data.create_year_column(date_column_name='DATE', year_column_name='SEASON')
+    # data.convert_column_to_datetime(column_name='DATE')
+    # data.create_year_column(date_column_name='DATE', year_column_name='SEASON')
 
     # Collect unique list of seasons
     seasons = data.collect_unique_column_values(column_name='SEASON')
@@ -443,7 +443,7 @@ def render_bowling_club_extras_analysis(
 
     # Render data source metadata badge
     data_source_badge(blob_connection_string=vars.blob_connection_string,
-                      file_name='bowling_match_data.csv',
+                      file_name='bowling_data.csv',
                       additional_comments=f'Data dated back to {oldest_season} season')
 
     # Collect bowling data and convert to dataframe
@@ -456,7 +456,7 @@ def render_bowling_club_extras_analysis(
                if '.' in str(x) else int(x) * 6)
 
     # Aggregate all data
-    all_data = bowling_match_data_df.groupby(['BOWLER', 'VENUE'], as_index=False)[
+    all_data = bowling_match_data_df.groupby(['PLAYER', 'HOME/AWAY'], as_index=False)[
         ['BALLS', 'MAIDENS', 'WICKETS', 'RUNS', 'WIDES', 'NO BALLS']
     ].sum()
 
@@ -464,7 +464,7 @@ def render_bowling_club_extras_analysis(
     all_data['SEASON'] = 'ALL'
 
     # Group data by bowler, season and venue
-    bowling_match_data_df = bowling_match_data_df.groupby(['BOWLER', 'SEASON', 'VENUE'], as_index=False)[
+    bowling_match_data_df = bowling_match_data_df.groupby(['PLAYER', 'SEASON', 'HOME/AWAY'], as_index=False)[
         ['BALLS', 'MAIDENS', 'WICKETS', 'RUNS', 'WIDES', 'NO BALLS']
     ].sum()
 
@@ -487,27 +487,27 @@ def render_bowling_club_extras_analysis(
     bowling_match_data_df = bowling_match_data_df.sort_values(by='METRIC', ascending=False)
 
     # Calculate total metric per bowler (summing across all venues)
-    df_sorted = bowling_match_data_df.groupby('BOWLER', as_index=False)['METRIC'].sum()
+    df_sorted = bowling_match_data_df.groupby('PLAYER', as_index=False)['METRIC'].sum()
 
     # Sort by total metric (descending)
     df_sorted = df_sorted.sort_values(by='METRIC', ascending=False)
 
     # Merge sorted order back to original df_grouped
-    bowling_match_data_df = bowling_match_data_df.set_index('BOWLER').loc[df_sorted['BOWLER']].reset_index()
+    bowling_match_data_df = bowling_match_data_df.set_index('PLAYER').loc[df_sorted['PLAYER']].reset_index()
 
     # Remove rows where metric is equal to zero
     bowling_match_data_df = bowling_match_data_df[bowling_match_data_df['METRIC'] != 0]
 
     # Generate plotting object
     plt = PlotlyPlotter(df=bowling_match_data_df,
-                        x='BOWLER',
+                        x='PLAYER',
                         y='METRIC',
-                        color='VENUE',
+                        color='HOME/AWAY',
                         barmode='group',
                         title=f"{y_axis_label} Conceded by Bowlers at Different Venues",
                         labels={'METRIC': y_axis_label},
-                        color_discrete_map={'Home': '#316151', 'Away': '#FFE31A'},
-                        hover_name='BOWLER',
+                        color_discrete_map={'HOME': '#316151', 'AWAY': '#FFE31A'},
+                        hover_name='PLAYER',
                         hover_data={
                             'BALLS': True,
                             metric: True
@@ -528,7 +528,7 @@ def render_bowling_club_wicket_taking(
     in a selected season.
 
     This function allows users to select a season and generates a pie chart showing the distribution of wicket
-    types (e.g., BOWLED, CAUGHT, LBW, STUMPED, HIT ROOF) for the selected season. The data is aggregated by
+    types (e.g., BOWLED, CAUGHT, LBW, STUMPED) for the selected season. The data is aggregated by
     dismissal type to show the total number of dismissals for each type.
 
     Args:
@@ -564,7 +564,7 @@ def render_bowling_club_wicket_taking(
 
     # Group data by season and aggregate wicket taking types
     data.aggregate_dataframe(groupby_columns=['SEASON'],
-                             agg_columns=['BOWLED', 'CAUGHT', 'LBW', 'STUMPED', 'HIT ROOF'],
+                             agg_columns=['BOWLED', 'CAUGHT', 'LBW', 'STUMPED'],
                              agg_func='sum')
 
     # Collet dataframe, drop season column and sum each column, rename dataframe columns
@@ -582,8 +582,7 @@ def render_bowling_club_wicket_taking(
                             'BOWLED': '#316151',
                             'CAUGHT': '#FFE31A',
                             'LBW': '#A63D40',
-                            'STUMPED': '#6495ED',
-                            'Hit ROOF': '#D2B48C'
+                            'STUMPED': '#6495ED'
                         })
 
     # Generate pie plot figure
@@ -602,7 +601,7 @@ def render_bowling_player_wicket_taking(
 
     This function provides a way for users to select a bowler and a season range, and then displays
     a grouped bar chart showing the number of wickets taken in each season, categorized by dismissal type
-    (e.g., BOWLED, CAUGHT, LBW, STUMPED, HIT ROOF). The data is filtered based on the selected bowler and
+    (e.g., BOWLED, CAUGHT, LBW, STUMPED). The data is filtered based on the selected bowler and
     season range, and the results are visualized in an interactive bar chart.
 
     Args:
@@ -645,7 +644,7 @@ def render_bowling_player_wicket_taking(
     data.filter_data_by_season_range(season=season, column_name='SEASON')
 
     data.melt_dataframe(id_vars=['SEASON'],
-                        value_vars=['BOWLED', 'CAUGHT', 'LBW', 'STUMPED', 'HIT ROOF'],
+                        value_vars=['BOWLED', 'CAUGHT', 'LBW', 'STUMPED'],
                         var_name='TYPE',
                         value_name='COUNT')
 
@@ -664,8 +663,7 @@ def render_bowling_player_wicket_taking(
                             'BOWLED': '#316151',
                             'CAUGHT': '#FFE31A',
                             'LBW': '#A63D40',
-                            'STUMPED': '#6495ED',
-                            'Hit ROOF': '#D2B48C'})
+                            'STUMPED': '#6495ED'})
 
     # Render bar plot
     st.plotly_chart(plt.plot_bar())
@@ -694,12 +692,12 @@ def render_bowling_player_home_away_performance(
         - The performance is visualized using a grouped bar chart with color coding for Home and Away venues.
         - The number of balls delivered is calculated and used for visualization.
     """
-    # Collect year from bowling match report data
-    data.convert_column_to_datetime(column_name='DATE')
-    data.create_year_column(date_column_name='DATE', year_column_name='SEASON')
+    # # Collect year from bowling match report data
+    # data.convert_column_to_datetime(column_name='DATE')
+    # data.create_year_column(date_column_name='DATE', year_column_name='SEASON')
 
     # Collect unique season values from dataframes
-    bowlers = data.collect_unique_column_values(column_name='BOWLER')
+    bowlers = data.collect_unique_column_values(column_name='PLAYER')
 
     # Render columns
     cols = st.columns([2, 1, 2, 2])
@@ -724,10 +722,10 @@ def render_bowling_player_home_away_performance(
 
     # Render data source metadata badge
     data_source_badge(blob_connection_string=vars.blob_connection_string,
-                      file_name='bowling_match_data.csv')
+                      file_name='bowling_data.csv')
 
     # Filter data based on streamlit inputs
-    data.filter_data_by_player(player_name=bowler, column_name='BOWLER')
+    data.filter_data_by_player(player_name=bowler, column_name='PLAYER')
     data.filter_data_by_season_range(season=season, column_name='SEASON')
 
     # Return bowling match data
@@ -740,7 +738,7 @@ def render_bowling_player_home_away_performance(
                if '.' in str(x) else int(x) * 6)
 
     # Group data by bowler, season and venue
-    bowling_match_data_df = bowling_match_data_df.groupby(['BOWLER', 'SEASON', 'VENUE'], as_index=False)[
+    bowling_match_data_df = bowling_match_data_df.groupby(['PLAYER', 'SEASON', 'HOME/AWAY'], as_index=False)[
         ['BALLS', 'MAIDENS', 'WICKETS', 'RUNS', 'WIDES', 'NO BALLS']
     ].sum()
 
@@ -751,12 +749,12 @@ def render_bowling_player_home_away_performance(
     plt = PlotlyPlotter(df=bowling_match_data_df,
                         x='SEASON',
                         y=metric_extras,
-                        color='VENUE',
+                        color='HOME/AWAY',
                         barmode='group',
                         title="Conceded by Bowlers at Different Venues",
                         labels={'METRIC': metric_extras},
                         color_discrete_map={'Home': '#316151', 'Away': '#FFE31A'},
-                        hover_name='BOWLER',
+                        hover_name='PLAYER',
                         hover_data={
                             'BALLS': True,
                             metric_extras: True

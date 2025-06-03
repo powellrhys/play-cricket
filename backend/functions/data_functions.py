@@ -5,6 +5,12 @@ import requests
 import io
 import os
 
+# Import project dependencies
+from functions.logging_functions import (
+    log_function_use,
+    logger
+)
+
 class Variables:
     """
     Class to collect environmental variables from .env file
@@ -36,7 +42,9 @@ class APIService:
         self._site_id = site_id
         self.vars = variables
         self.base_url = "http://play-cricket.com/api/v2/"
+        self.logger = logger
 
+    @log_function_use(logger)
     def collect_match_ids(
         self,
         seasons: list
@@ -69,6 +77,7 @@ class APIService:
 
             self.match_ids.extend(ids)
 
+    @log_function_use(logger)
     def collect_match_data(
         self
     ) -> None:
@@ -78,6 +87,7 @@ class APIService:
 
         self.all_batting_df = pd.DataFrame()
         self.all_bowling_df = pd.DataFrame()
+        self.all_bowling_dismissals_df = pd.DataFrame()
         for i, match_id in enumerate(self.match_ids[0:6], start=1):
 
             params = {
@@ -99,13 +109,15 @@ class APIService:
 
             innings = data['match_details'][0]['innings']
 
-            print(f"{i}/{len(self.match_ids)} - Collecting data for {match_date} | {opponent} ({home_away})")
+            logger.info(f"{i}/{len(self.match_ids)} - Collecting data for {match_date} | {opponent} ({home_away})")
 
             bowling_innings = []
             batting_innings = []
+            bowling_dismissal_innings = []
             for inning in innings:
                 if self.vars.club not in inning['team_batting_name'].lower():
                     bowling_innings = inning['bowl']
+                    bowling_dismissal_innings = inning['bat']
 
                 if self.vars.club in inning['team_batting_name'].lower():
                     batting_innings = inning['bat']
@@ -122,11 +134,6 @@ class APIService:
 
             if batting_innings:
                 batting_df = pd.DataFrame(batting_innings)
-                batting_df = batting_df.drop(columns=['bowler_id',
-                                                      'bowler_name',
-                                                      'fielder_name',
-                                                      'fielder_id'],
-                                             axis=0)
                 batting_df['home_away'] = home_away
                 batting_df['opponent'] = opponent
                 batting_df['match_date'] = match_date
@@ -145,8 +152,37 @@ class APIService:
 
                 batting_df['how_out'] = batting_df['how_out'].map(dismissal_map).fillna('Other')
 
+                batting_df = batting_df.drop(columns=['bowler_id', 'bowler_name', 'fielder_name', 'fielder_id'],
+                                             axis=0)
+
                 self.all_batting_df = pd.concat([self.all_batting_df, batting_df])
 
+            if bowling_dismissal_innings:
+                bowling_dismissal_df = pd.DataFrame(bowling_dismissal_innings)
+                bowling_dismissal_df['home_away'] = home_away
+                bowling_dismissal_df['opponent'] = opponent
+                bowling_dismissal_df['match_date'] = match_date
+                bowling_dismissal_df['match_date'] = pd.to_datetime(bowling_dismissal_df['match_date'],
+                                                                    format='%d/%m/%Y')
+                bowling_dismissal_df['year'] = bowling_dismissal_df['match_date'].dt.year
+
+                dismissal_map = {
+                    'b': 'Bowled',
+                    'ct': 'Caught',
+                    'lbw': 'LBW',
+                    'not out': 'Not Out',
+                    'run out': 'Run Out',
+                    'did not bat': 'Did Not Bat',
+                    'st': 'Stumped'
+                }
+
+                bowling_dismissal_df['how_out'] = bowling_dismissal_df['how_out'].map(dismissal_map).fillna('Other')
+
+                bowling_dismissal_df = bowling_dismissal_df[['bowler_id', 'bowler_name', 'how_out', 'year']]
+
+                self.all_bowling_dismissals_df = pd.concat([self.all_bowling_dismissals_df, bowling_dismissal_df])
+
+    @log_function_use(logger)
     def generate_how_out_df(self) -> None:
         """
         """
@@ -161,6 +197,7 @@ class APIService:
 
         self.how_out_df.columns = [col.upper() for col in self.how_out_df.columns]
 
+    @log_function_use(logger)
     def generate_batting_summary_df(self) -> None:
         """
         """
@@ -172,10 +209,14 @@ class APIService:
                                      (summary_batting_df['runs'] < 100)).astype(int)
         summary_batting_df['100s'] = (summary_batting_df['runs'] >= 100).astype(int)
         summary_batting_df['ducks'] = (summary_batting_df['runs'] == 0).astype(int)
+        summary_batting_df['games'] = 1
+        summary_batting_df['inns'] = (summary_batting_df['how_out'] != 'Did Not Bat').astype(int)
 
         summary_batting_df = summary_batting_df \
             .groupby(['batsman_name', 'year']) \
             .agg({
+                'games': 'sum',
+                'inns': 'sum',
                 'runs': ['sum', 'max'],
                 '50s': 'sum',
                 '100s': 'sum',
@@ -184,21 +225,73 @@ class APIService:
                 'ducks': 'sum',
             }).reset_index()
 
-        input_columns = ['batsman_name', 'year', 'runs_sum', 'runs_max', '50s_sum', '100s_sum', 'fours_sum', 'sixes_sum', 'ducks']
-        output_columns = ['PLAYER', 'YEAR', 'RUNS', 'HIGH SCORE', '50s', '100s', '4s', '6s', 'ducks']
+        input_columns = ['batsman_name', 'year', 'games', 'inns', 'runs_sum', 'runs_max', '50s_sum',
+                         '100s_sum', 'fours_sum', 'sixes_sum', 'ducks']
+        output_columns = ['PLAYER', 'SEASON', 'GAMES', 'INNS', 'RUNS', 'HIGH SCORE',
+                          '50s', '100s', '4s', '6s', 'DUCKS']
 
         summary_batting_df.columns = input_columns
         summary_batting_df.rename(columns=dict(zip(input_columns, output_columns)), inplace=True)
 
         self.summary_batting_df = summary_batting_df
 
-
-    def capitalize_df_headers(self) -> None:
+    @log_function_use(logger)
+    def generate_bowling_summary_df(self) -> None:
         """
         """
-        self.all_batting_df.columns = [col.replace('_', '').upper() for col in self.all_batting_df.columns]
-        self.all_bowling_df.columns = [col.upper() for col in self.all_bowling_df.columns]
+        summary_bowling_df = self.all_bowling_df
+        for column in ['overs', 'maidens', 'runs', 'wides', 'wickets', 'no_balls']:
+            summary_bowling_df[column] = pd.to_numeric(summary_bowling_df[column], errors='coerce')
 
+        summary_bowling_df['balls'] = summary_bowling_df['overs'].apply(lambda x: int(x) * 6 + round((x - int(x)) * 10))
+
+        summary_bowling_df = summary_bowling_df \
+            .groupby(
+                ['bowler_name', 'year', 'home_away'])[
+                    ['balls', 'maidens', 'runs', 'wides', 'wickets', 'no_balls']] \
+            .sum().reset_index()
+
+        # Convert balls back to overs
+        summary_bowling_df['overs'] = summary_bowling_df['balls'].apply(lambda x: f"{x // 6}.{x % 6}")
+
+        input_columns = ['bowler_name', 'year', 'home_away', 'balls',
+                         'maidens', 'runs', 'wides', 'no_balls', 'wickets', 'overs',]
+        output_columns = ['PLAYER', 'SEASON', 'HOME/AWAY', 'BALLS', 'MAIDENS',
+                          'RUNS', 'WIDES', 'NO BALLS', 'WICKETS', 'OVERS']
+
+        summary_bowling_df.columns = input_columns
+        summary_bowling_df.rename(columns=dict(zip(input_columns, output_columns)), inplace=True)
+
+        self.summary_bowling_df = summary_bowling_df
+
+    @log_function_use(logger)
+    def generate_bowling_dismissals_summary_df(self) -> None:
+        """
+        """
+        bowling_dismissal_summary_df = self.all_bowling_dismissals_df.dropna(subset=['bowler_name', 'how_out'])
+
+        # Group by bowler_name and year, then count each how_out
+        bowling_dismissal_summary_df = bowling_dismissal_summary_df \
+            .groupby(['bowler_name', 'year'])['how_out'] \
+            .value_counts() \
+            .unstack(fill_value=0)
+
+        # Reset index to make 'bowler_name' and 'year' into columns
+        bowling_dismissal_summary_df = bowling_dismissal_summary_df.reset_index()
+
+        # Remove rows with blank or missing bowler_name
+        bowling_dismissal_summary_df = \
+            bowling_dismissal_summary_df[bowling_dismissal_summary_df['bowler_name'].str.strip() != '']
+
+        bowling_dismissal_summary_df = bowling_dismissal_summary_df.drop(columns=['Did Not Bat', 'Not Out', 'Run Out'])
+
+        input_columns = ['bowler_name', 'year', 'Bowled', 'Caught', 'LBW', 'Stumped']
+        output_columns = ['PLAYER', 'SEASON', 'BOWLED', 'CAUGHT', 'LBW', 'STUMPED']
+
+        bowling_dismissal_summary_df.columns = input_columns
+        bowling_dismissal_summary_df.rename(columns=dict(zip(input_columns, output_columns)), inplace=True)
+
+        self.bowling_dismissal_summary_df = bowling_dismissal_summary_df
 
 def write_df_to_blob(
     df: pd.DataFrame,
