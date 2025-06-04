@@ -68,10 +68,10 @@ class APIService:
                 for match in matches
                 if (
                     self.vars.club in match['home_club_name'].lower() and
-                    match['home_team_name'] in ["1st XI"]#, "2nd XI"]
+                    match['home_team_name'] in ["1st XI", "2nd XI"]
                 ) or (
                     self.vars.club in match['away_club_name'].lower() and
-                    match['away_team_name'] in ["1st XI"]#, "2nd XI"]
+                    match['away_team_name'] in ["1st XI", "2nd XI"]
                 )
             ]
 
@@ -88,7 +88,7 @@ class APIService:
         self.all_batting_df = pd.DataFrame()
         self.all_bowling_df = pd.DataFrame()
         self.all_bowling_dismissals_df = pd.DataFrame()
-        for i, match_id in enumerate(self.match_ids[0:6], start=1):
+        for i, match_id in enumerate(self.match_ids, start=1):
 
             params = {
                 "match_id": match_id,
@@ -283,7 +283,8 @@ class APIService:
         bowling_dismissal_summary_df = \
             bowling_dismissal_summary_df[bowling_dismissal_summary_df['bowler_name'].str.strip() != '']
 
-        bowling_dismissal_summary_df = bowling_dismissal_summary_df.drop(columns=['Did Not Bat', 'Not Out', 'Run Out'])
+        bowling_dismissal_summary_df = \
+            bowling_dismissal_summary_df[['bowler_name', 'year', 'Bowled', 'Caught', 'LBW', 'Stumped']]
 
         input_columns = ['bowler_name', 'year', 'Bowled', 'Caught', 'LBW', 'Stumped']
         output_columns = ['PLAYER', 'SEASON', 'BOWLED', 'CAUGHT', 'LBW', 'STUMPED']
@@ -325,43 +326,3 @@ def write_df_to_blob(
 
     # Upload the CSV to Blob Storage
     blob_client.upload_blob(csv_buffer.getvalue(), overwrite=True)
-
-
-def read_csv_from_blob(
-    connection_string: str,
-    container_name: str,
-    blob_name: str
-) -> pd.DataFrame:
-    """
-    Function to read csv files from blob storage
-
-    Args:
-       connection_string (str): Azure storage account connection string
-       container_name (str): Azure storage account container name
-       blob_name (str): Azure storage account file name
-
-    Raise:
-        TypeError: If input values are not strings
-
-    Return:
-        df (pd.Dataframe): Pandas dataframe generated from csv data stored in a blob storage
-    """
-    # Ensure input variables are strings
-    for arg_name, arg_value in locals().items():
-        if not isinstance(arg_value, str):
-            raise TypeError(f"{arg_name} must be a string, but got {type(arg_value).__name__}")
-
-    # Create a BlobServiceClient
-    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-
-    # Get a reference to the blob
-    blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
-
-    # Download the blob content
-    blob_data = blob_client.download_blob()
-    csv_content = blob_data.content_as_text()
-
-    # Convert CSV content to DataFrame
-    df = pd.read_csv(io.StringIO(csv_content))
-
-    return df
