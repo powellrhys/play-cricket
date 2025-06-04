@@ -39,27 +39,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Configure and install Chrome
-      - name: Set up Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
-          google-chrome --version
-
-      # Configure ChromeDriver
-      - name: Set up ChromeDriver
-        run: |
-          sudo apt-get install -y chromium-chromedriver
-          chromedriver --version
-
       # Run Python Script
       - name: Run Python data collection script
         env:
           club: ${{ secrets.club }}
-          email: ${{ secrets.email }}
-          password: ${{ secrets.password }}
-          headless: 'True'
-          driver_path: '/usr/bin/chromedriver'
+          site_id: ${{ secrets.site_id }}
+          api_token: ${{ secrets.api_token }}
           blob_connection_string: ${{ secrets.blob_connection_string }}
         run: |
           python backend/collect_data.py
