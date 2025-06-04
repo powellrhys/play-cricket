@@ -271,7 +271,7 @@ def render_batting_club_batting_overview(
         a trendline for visualizing potential correlations.
     """
     # Collect unique drop down metrics
-    seasons_overs = data.collect_unique_column_values('SEASON')
+    seasons_overs = sorted(data.collect_unique_column_values('SEASON'), reverse=True)
 
     # Render columns
     cols = st.columns([2, 1, 2])
@@ -336,7 +336,7 @@ def render_bowling_club_bowling_effectiveness(
         - A trendline is added to the scatter plot to help identify any trends in the data.
     """
     # Collect unique seasons found in dataset
-    seasons = data.collect_unique_column_values(column_name='SEASON')
+    seasons = sorted(data.collect_unique_column_values(column_name='SEASON'), reverse=True)
 
     # Render streamlit columns
     cols = st.columns([2, 1, 1, 1])

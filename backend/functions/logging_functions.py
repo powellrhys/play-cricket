@@ -8,12 +8,16 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
+# Remove azure basic log messages
 logging.getLogger('azure').setLevel(logging.WARNING)
 
+# Define logger object
 logger = logging.getLogger(__name__)
 
 def log_function_use(logger):
-    """Decorator that logs method entry, arguments, return value."""
+    """
+    Decorator that logs method entry, arguments, return value.
+    """
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
