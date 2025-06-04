@@ -1,4 +1,4 @@
-name: Collect Data with Selenium
+name: Collect Play Cricket Data
 
 on:
   workflow_dispatch:
