@@ -8,7 +8,7 @@ This project is a data-driven web app that displays club cricket statistics for 
 
 ## Backend
 
-The backend uses selenium to scrape data from the play cricket website and writes this data to an azure blob storage container. Data scrapping occurs weekly, orchestrated by the `collect_data.yml` github action. 
+The backend uses the play cricket endpoints to collect data from matches played by the 1st and 2nd XI from the previous 10 seasons. Data scrapping occurs weekly, orchestrated by the `collect_data.yml` github action. 
 
 ## Frontend
 
