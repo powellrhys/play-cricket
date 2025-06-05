@@ -498,7 +498,7 @@ class APIService:
         bowling_dismissal_summary_df.rename(columns={'bowler_name': 'PLAYER', 'year': 'SEASON'})
 
         # Capitalize column headers
-        bowling_dismissal_summary_df = bowling_dismissal_summary_df.columns.str.upper()
+        bowling_dismissal_summary_df.columns = bowling_dismissal_summary_df.columns.str.upper()
 
         # Make dataframe object accessible by class
         self.bowling_dismissal_summary_df = bowling_dismissal_summary_df
