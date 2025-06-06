@@ -34,4 +34,4 @@ jobs:
       docker_password: ${{ secrets.docker_password }}
     with:
       image_name: playcricket-streamlit-frontend
-      docker_file_path: frontend\Dockerfile
+      docker_file_path: frontend/Dockerfile
