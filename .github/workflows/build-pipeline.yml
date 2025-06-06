@@ -23,4 +23,3 @@ jobs:
     uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-python.yml@main
     with:
       config_path: '.flake8'
-      code_directory: .
