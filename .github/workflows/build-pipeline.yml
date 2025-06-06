@@ -19,5 +19,6 @@ jobs:
   # Lint python codebase
   lint-python:
     uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-python.yml@main
-    config_path: '.flake8'
-    code_directory: '.'
+    with:
+      config_path: '.flake8'
+      code_directory: '.'
