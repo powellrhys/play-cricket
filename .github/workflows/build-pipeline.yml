@@ -9,16 +9,14 @@ on:
       - main
       - feature/*
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
+  # Lint yaml pipelines
   lint-yaml:
     uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-yaml.yml@main
     with:
       config_path: '.yamllint.yml'
 
+  # Lint python codebase
   lint-python:
     uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-python.yml@main
     config_path: '.flake8'
