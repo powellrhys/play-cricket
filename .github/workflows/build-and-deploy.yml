@@ -31,5 +31,6 @@ jobs:
     needs: lint-python #['lint-yaml', 'lint-python']
     uses: powellrhys/powellrhys-iac/.github/workflows/template-build-and-push-container.yml@feature/container_build_template
     with:
+      docker_password: ${{ secrets.docker_password }}
       image_name: playcricket-streamlit-frontend
       docker_file_path: frontend\Dockerfile
