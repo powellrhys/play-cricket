@@ -12,13 +12,15 @@ on:
 jobs:
   # Lint yaml pipelines
   lint-yaml:
+    name: Lint Yaml Pipelines
     uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-yaml.yml@main
     with:
       config_path: '.yamllint.yml'
 
   # Lint python codebase
   lint-python:
+    name: Lint Python Codebase
     uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-python.yml@main
     with:
       config_path: '.flake8'
-      code_directory: '.'
+      code_directory: .
