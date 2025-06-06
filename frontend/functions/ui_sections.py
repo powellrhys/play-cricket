@@ -362,6 +362,8 @@ def render_bowling_club_bowling_effectiveness(
     # Filter bowling data by season
     data.filter_by_column(column='SEASON', filter_value=season)
 
+    data.group_home_and_away_metrics(groupby_columns=['PLAYER', 'SEASON'])
+
     # Render data source metadata badge
     data_source_badge(blob_connection_string=vars.blob_connection_string,
                       file_name='bowling_data.csv')
@@ -745,6 +747,8 @@ def render_bowling_player_home_away_performance(
     # Create dynamic metric column
     bowling_match_data_df['METRIC'] = bowling_match_data_df[metric_extras]
 
+    print(bowling_match_data_df)
+
     # Generate plot object
     plt = PlotlyPlotter(df=bowling_match_data_df,
                         x='SEASON',
@@ -753,7 +757,7 @@ def render_bowling_player_home_away_performance(
                         barmode='group',
                         title="Conceded by Bowlers at Different Venues",
                         labels={'METRIC': metric_extras},
-                        color_discrete_map={'Home': '#316151', 'Away': '#FFE31A'},
+                        color_discrete_map={'HOME': '#316151', 'AWAY': '#FFE31A'},
                         hover_name='PLAYER',
                         hover_data={
                             'BALLS': True,

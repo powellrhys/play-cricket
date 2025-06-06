@@ -106,3 +106,25 @@ class CricketData(BlobData):
         # Filter data by season range
         self.df = self.df[(self.df[column_name] >= season[0]) &
                           (self.df[column_name] <= season[1])]
+
+    def group_home_and_away_metrics(
+        self,
+        groupby_columns: list
+    ) -> None:
+        """
+        Groups the DataFrame by specified columns (e.g., ['PLAYER', 'SEASON']) and
+        aggregates all numeric columns (e.g., RUNS, BALLS, WICKETS). If an 'OVERS'
+        column exists, it is recalculated from the total BALLS column using standard
+        cricket notation (e.g., 37.5 means 37 overs and 5 balls).
+
+        Parameters:
+        ----------
+        groupby_columns : list
+            A list of column names to group the DataFrame by.
+        """
+        # Group by the given columns and sum all numeric fields
+        self.df = self.df.groupby(groupby_columns, as_index=False).sum(numeric_only=True)
+
+        # If an 'OVERS' column exists, recalculate it based on total balls
+        if 'overs' in [col.lower() for col in self.df.columns]:
+            self.df['OVERS'] = self.df['BALLS'].apply(lambda balls: f"{balls // 6}.{balls % 6}")
