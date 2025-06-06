@@ -2,8 +2,10 @@
 from streamlit_components.data_functions import (
     BlobData
 )
+from dotenv import load_dotenv
 import streamlit as st
 import pandas as pd
+import os
 
 class Variables:
     """
@@ -19,8 +21,17 @@ class Variables:
     def __init__(self):
 
         # Collect environmental variables
-        self.blob_connection_string = st.secrets['general']['blob_connection_string']
-        self.club = st.secrets['general']['club']
+        load_dotenv()
+        self.blob_connection_string = self.get_var('blob_connection_string')
+        self.club = self.get_var('club')
+
+    def get_var(self, key, section='general'):
+        try:
+            # Try streamlit secrets first
+            return st.secrets[section][key]
+        except Exception:
+            # Fall back to environment variables
+            return os.getenv(key.upper())
 
 
 class CricketData(BlobData):

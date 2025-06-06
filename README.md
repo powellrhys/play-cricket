@@ -3,6 +3,8 @@
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Azure](https://img.shields.io/badge/azure-%230072C6.svg?style=for-the-badge&logo=microsoftazure&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)
+![PowerShell](https://img.shields.io/badge/powershell-239120?style=for-the-badge&logo=powershell&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
 This project is a data-driven web app that displays club cricket statistics for analysis. This repository contains the backend and frontend code for the entire project.
 
@@ -14,7 +16,12 @@ The backend uses the play cricket endpoints to collect data from matches played 
 
 The frontend is written in python and uses the streamlit library. The frontend consists 6 pages (illustrated below) and uses data from an azure blob storage account to render various tables and plots.
 
-The frontend has been deployed to the cloud using streamlit cloud and be found [here](https://play-cricket-creigiaucc.streamlit.app/). It's worth noting that given the sensitive nature of some of the data, access to the application is limited, with user authentication handled by oauth0. 
+Given the private nature of the data, access to the application is limited and is handled by oauth0.
+
+The application has been deployed twice:
+
+- [Azure]()
+- [Streamlit Cloud](https://play-cricket-creigiaucc.streamlit.app/)
 
 ### Home Page
 
