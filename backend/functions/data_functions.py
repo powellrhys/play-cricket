@@ -495,7 +495,7 @@ class APIService:
             bowling_dismissal_summary_df[input_columns]
 
         # Rename columns
-        bowling_dismissal_summary_df.rename(columns={'bowler_name': 'PLAYER', 'year': 'SEASON'})
+        bowling_dismissal_summary_df.rename(columns={'bowler_name': 'PLAYER', 'year': 'SEASON'}, inplace=True)
 
         # Capitalize column headers
         bowling_dismissal_summary_df.columns = bowling_dismissal_summary_df.columns.str.upper()

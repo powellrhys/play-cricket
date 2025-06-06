@@ -9,42 +9,18 @@ on:
       - main
       - feature/*
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
-  lint-codebase:
-    name: Lint Codebase
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+  # Lint yaml pipelines
+  lint-yaml:
+    name: Lint Yaml Pipelines
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-yaml.yml@main
+    with:
+      config_path: '.yamllint.yml'
 
-    steps:
-
-      # Checkout repository Code
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Install Python
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-
-      # Install dependencies
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r dev_requirements.txt
-
-      # Lint python codebase with flake8
-      - name: Lint with flake8
-        run: |
-          flake8 --count --show-source --statistics
-
-      # Lint yaml pipelines with yamllint
-      - name: Lint with yamllint
-        run: |
-          yamllint -c .yamllint.yml .
+  # Lint python codebase
+  lint-python:
+    name: Lint Python Codebase
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-python.yml@main
+    with:
+      config_path: '.flake8'
+      code_directory: '.'
