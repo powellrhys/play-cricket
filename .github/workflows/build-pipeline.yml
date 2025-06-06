@@ -14,37 +14,42 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  lint-codebase:
-    name: Lint Codebase
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+  lint-yaml:
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-yaml.yml@main
+    with:
+      config_path: '.yamllint.yml'
 
-    steps:
+  # lint-codebase:
+  #   name: Lint Codebase
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
 
-      # Checkout repository Code
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  #   steps:
 
-      # Install Python
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
+  #     # Checkout repository Code
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      # Install dependencies
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r dev_requirements.txt
+  #     # Install Python
+  #     - name: Set up Python 3.8
+  #       uses: actions/setup-python@v2
+  #       with:
+  #         python-version: 3.8
 
-      # Lint python codebase with flake8
-      - name: Lint with flake8
-        run: |
-          flake8 --count --show-source --statistics
+  #     # Install dependencies
+  #     - name: Install dependencies
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install -r dev_requirements.txt
 
-      # Lint yaml pipelines with yamllint
-      - name: Lint with yamllint
-        run: |
-          yamllint -c .yamllint.yml .
+  #     # Lint python codebase with flake8
+  #     - name: Lint with flake8
+  #       run: |
+  #         flake8 --count --show-source --statistics
+
+  #     # Lint yaml pipelines with yamllint
+  #     - name: Lint with yamllint
+  #       run: |
+  #         yamllint -c .yamllint.yml .

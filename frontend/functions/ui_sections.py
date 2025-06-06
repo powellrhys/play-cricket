@@ -362,6 +362,7 @@ def render_bowling_club_bowling_effectiveness(
     # Filter bowling data by season
     data.filter_by_column(column='SEASON', filter_value=season)
 
+    # Group home and away data together
     data.group_home_and_away_metrics(groupby_columns=['PLAYER', 'SEASON'])
 
     # Render data source metadata badge
@@ -746,8 +747,6 @@ def render_bowling_player_home_away_performance(
 
     # Create dynamic metric column
     bowling_match_data_df['METRIC'] = bowling_match_data_df[metric_extras]
-
-    print(bowling_match_data_df)
 
     # Generate plot object
     plt = PlotlyPlotter(df=bowling_match_data_df,
