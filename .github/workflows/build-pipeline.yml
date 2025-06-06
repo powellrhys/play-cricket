@@ -20,7 +20,7 @@ jobs:
   # Lint python codebase
   lint-python:
     name: Lint Python Codebase
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-python.yml@feature/python_lint_fix
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-python.yml@main
     with:
       config_path: '.flake8'
       code_directory: '.'
