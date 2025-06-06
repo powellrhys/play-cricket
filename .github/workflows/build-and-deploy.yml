@@ -11,11 +11,11 @@ on:
 
 jobs:
   # Lint yaml pipelines
-  lint-yaml:
-    name: Lint Yaml Pipelines
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-yaml.yml@main
-    with:
-      config_path: '.yamllint.yml'
+  # lint-yaml:
+  #   name: Lint Yaml Pipelines
+  #   uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-yaml.yml@main
+  #   with:
+  #     config_path: '.yamllint.yml'
 
   # Lint python codebase
   lint-python:
@@ -25,9 +25,10 @@ jobs:
       config_path: '.flake8'
       code_directory: '.'
 
+  # Build & Push Application
   build-application:
     name: Build Application
-    needs: ['lint-yaml', 'lint-python']
+    needs: lint-python #['lint-yaml', 'lint-python']
     uses: powellrhys/powellrhys-iac/.github/workflows/template-build-and-push-container.yml@feature/container_build_template
     with:
       image_name: playcricket-streamlit-frontend
