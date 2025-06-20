@@ -10,12 +10,17 @@ on:
       - feature/*
 
 jobs:
-  # Lint yaml pipelines
   lint-yaml:
     name: Lint Yaml Pipelines
-    uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
-    with:
-      config_path: '.yamllint.yml'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lint YAML
+        uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
+        with:
+          config_path: '.yamllint.yml'
 
   # # Lint python codebase
   # lint-python:
