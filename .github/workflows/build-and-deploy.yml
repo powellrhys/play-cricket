@@ -53,5 +53,6 @@ jobs:
     uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@feature/play-cricket-debugging
     with:
       tf_directory: 'infra'
+      tf_vars_file_name: 'values.tfvars'
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
