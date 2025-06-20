@@ -4,7 +4,7 @@ variable "app_service_resource_group" {
   default     = ""
 }
 
-variable "app_service_location" {
+variable "location" {
   type        = string
   description = "The name of the Azure Location"
   default     = "westeurope"
