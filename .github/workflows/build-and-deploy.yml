@@ -69,5 +69,6 @@ jobs:
       should_apply: 'true'
       release_environment: 'PROD'
       tf_directory: 'infra'
+      tf_vars_file_name: 'values.tfvars'
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
