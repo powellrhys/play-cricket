@@ -19,11 +19,11 @@ configure_page_config(repository_name='play-cricket',
                       page_icon='🏏')
 
 # Ensure user is authenticated to use application
-if not st.experimental_user.is_logged_in:
+if not st.user.is_logged_in:
     st.login('auth0')
 
 # If user logged in, render streamlit content
-if st.experimental_user.is_logged_in:
+if st.user.is_logged_in:
 
     # Render page title
     st.title(f'{vars.club.capitalize()} CC Analysis')

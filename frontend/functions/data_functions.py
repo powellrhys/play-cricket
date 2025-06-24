@@ -24,6 +24,7 @@ class Variables:
         load_dotenv()
         self.blob_connection_string = self.get_var('blob_connection_string')
         self.club = self.get_var('club')
+        self.use_oauth = self.get_var('use_oauth', False)
 
     def get_var(self, key, section='general'):
         try:
