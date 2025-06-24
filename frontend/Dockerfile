@@ -1,33 +1,22 @@
-# syntax=docker/dockerfile:1.4
-# Use python list base image
 FROM python:3.13-slim
 
-# Define environmental variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     STREAMLIT_CONFIG_DIR=/app/.streamlit
 
-# Setup working directory
 WORKDIR /app
 
-# Install system dependencies (git required for pip install from GitHub)
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-# Copy project into the image
 COPY . /app
+COPY frontend/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
-# Install Python dependencies
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Use BuildKit to securely copy secret.toml into .streamlit
-RUN --mount=type=secret,id=secret_toml \
-    mkdir -p /app/.streamlit && \
-    cp /run/secrets/secret_toml /app/.streamlit/secret.toml
-
-# Expose Streamlit's default port
 EXPOSE 8501
 
-# Launch the Streamlit app
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["streamlit", "run", "frontend/main.py"]
 
 
