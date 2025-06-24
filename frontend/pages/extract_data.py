@@ -22,11 +22,11 @@ configure_page_config(repository_name='play-cricket',
                       page_icon='🏏')
 
 # Ensure user is authenticated to use application
-if not st.user.is_logged_in:
+if not st.experimental_user.is_logged_in:
     st.login('auth0')
 
 # If user logged in, render streamlit components
-if st.user.is_logged_in:
+if st.experimental_user.is_logged_in:
 
     # Render extract data ui section
     render_extract_data(vars=vars)
