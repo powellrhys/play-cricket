@@ -1,3 +1,8 @@
 [theme]
 base="light"
 primaryColor="#316151"
+
+[server]
+runOnSave = false
+headless = true
+port = 8501
