@@ -6,8 +6,8 @@ mkdir -p /app/.streamlit
 # Generate secret.toml
 cat <<EOF > /app/.streamlit/secret.toml
 [general]
-club=${CLUB}'
-blob_connection_string=${BLOB_CONNECTION_STRING}'
+club='${CLUB}'
+blob_connection_string='${BLOB_CONNECTION_STRING}'
 
 [auth]
 redirect_uri='${REDIRECT_URI}'
