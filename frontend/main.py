@@ -1,6 +1,7 @@
 # Import python dependencies
 from dotenv import load_dotenv
 import streamlit as st
+import os
 
 from functions.data_functions import (
     Variables
@@ -13,8 +14,13 @@ from functions.config import (
 )
 
 # Load environment variables
-load_dotenv()
-generate_secrets_config_file()
+if os.getenv('environemnt') != 'PRD':
+    load_dotenv()
+
+if "secrets_initialized" not in st.session_state:
+    generate_secrets_config_file()
+    st.session_state.secrets_initialized = True
+
 vars = Variables()
 
 # Ensure user is authenticated to use application
