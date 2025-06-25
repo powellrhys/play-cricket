@@ -8,9 +8,13 @@ from functions.data_functions import (
 from functions.navigation import (
     get_navigation
 )
+from functions.config import (
+    generate_secrets_config_file
+)
 
 # Load environment variables
 load_dotenv()
+generate_secrets_config_file()
 vars = Variables()
 
 # Ensure user is authenticated to use application

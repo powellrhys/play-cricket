@@ -26,10 +26,11 @@ if ($containers) {
 } else {
     Write-Host "No containers named '$containerName' found. `n"
 }
+
 Write-Host "Starting container: $containerName..."
 docker run -d `
   -p 8501:8501 `
-  --env-file "./app.env" `
+  --env-file "./.env" `
   $containerName
 Write-Host "Container started `n"
 

@@ -14,9 +14,10 @@ RUN chmod +x /app/entrypoint.sh
 
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-ENV STREAMLIT_CONFIG_DIR=/app/.streamlit
+# ENV STREAMLIT_CONFIG_DIR=/app/.streamlit
 
 EXPOSE 8501
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+# ENTRYPOINT ["/app/entrypoint.sh"]
+
 CMD ["streamlit", "run", "frontend/main.py"]
