@@ -41,3 +41,14 @@ if st.experimental_user.is_logged_in:
             in an interactive and user-friendly way.
             """
         )
+
+        st.secrets['general']['club']
+        st.secrets['general']['blob_connection_string']
+
+        st.secrets['auth']['redirect_uri']
+        st.secrets['auth']['cookie_secret']
+
+        st.secrets['auth']['auth0']['domain']
+        st.secrets['auth']['auth0']['client_id']
+        st.secrets['auth']['auth0']['client_secret']
+        st.secrets['auth']['auth0']['server_metadata_url']
