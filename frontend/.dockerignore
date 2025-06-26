@@ -1,0 +1,10 @@
+# Ignore backend
+backend/
+
+# Ignore secrets
+.streamlit/secrets.toml
+
+# Ignore Git and other dev files
+.git/
+*.pyc
+__pycache__/
