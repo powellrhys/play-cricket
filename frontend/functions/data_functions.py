@@ -18,6 +18,7 @@ class Variables:
     """
     def __init__(self):
 
+        # Collect environmental variables
         self.blob_connection_string = st.secrets['general']['blob_connection_string']
         self.club = st.secrets['general']['club']
 
