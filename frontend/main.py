@@ -29,11 +29,24 @@ load_dotenv()
 load_dotenv()
 vars = Variables()
 
-# Ensure user is authenticated to use application
-if not st.experimental_user.is_logged_in:
-    st.login('auth0')
+st.secrets['general']['club']
+st.secrets['general']['blob_connection_string']
 
-# Render application if user is logged in
-if st.experimental_user.is_logged_in:
-    pg = get_navigation(club=vars.club)
-    pg.run()
+st.secrets['auth']['redirect_uri']
+st.secrets['auth']['cookie_secret']
+
+st.secrets['auth']['auth0']['domain']
+st.secrets['auth']['auth0']['client_id']
+st.secrets['auth']['auth0']['client_secret']
+st.secrets['auth']['auth0']['server_metadata_url']
+
+
+
+# # Ensure user is authenticated to use application
+# if not st.experimental_user.is_logged_in:
+#     st.login('auth0')
+
+# # Render application if user is logged in
+# if st.experimental_user.is_logged_in:
+#     pg = get_navigation(club=vars.club)
+#     pg.run()
