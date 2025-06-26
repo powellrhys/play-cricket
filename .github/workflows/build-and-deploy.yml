@@ -18,16 +18,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Lint Python
-        uses: powellrhys/powellrhys-iac/.github/actions/lint-python@feature/play-cricket-debugging
+      - name: Lint YAML
+        uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
         with:
-          config_path: '.flake8'
-          code_directory: '.'
-
-      # - name: Lint YAML
-      #   uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
-      #   with:
-      #     config_path: '.yamllint.yml'
+          config_path: '.yamllint.yml'
 
   # Lint python codebase
   lint-python:
@@ -38,7 +32,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Lint Python
-        uses: powellrhys/powellrhys-iac/.github/actions/lint-python@feature/play-cricket-debugging
+        uses: powellrhys/powellrhys-iac/.github/actions/lint-python@main
         with:
           config_path: '.flake8'
           code_directory: '.'
@@ -48,7 +42,7 @@ jobs:
   build-application:
     name: Build Application
     needs: ['lint-yaml', 'lint-python']
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-build-and-push-streamlit-container.yml@feature/play-cricket-debugging
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-build-and-push-streamlit-container.yml@main
     secrets:
       docker_password: ${{ secrets.docker_password }}
     with:
@@ -59,7 +53,7 @@ jobs:
   plan:
     name: Plan
     needs: ['lint-yaml', 'lint-python', 'build-application']
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@feature/play-cricket-debugging
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
     with:
       tf_directory: 'infra'
       tf_vars_file_name: 'values.tfvars'
@@ -70,7 +64,7 @@ jobs:
   apply:
     needs: ['lint-yaml', 'lint-python', 'build-application', 'plan']
     name: Apply
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@feature/play-cricket-debugging
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
     with:
       should_apply: 'true'
       release_environment: 'PROD'
