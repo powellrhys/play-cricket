@@ -68,7 +68,6 @@ jobs:
 
   # Execute apply
   apply:
-    needs: plan
     needs: ['lint-yaml', 'lint-python', 'build-application', 'plan']
     name: Apply
     uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@feature/play-cricket-debugging
