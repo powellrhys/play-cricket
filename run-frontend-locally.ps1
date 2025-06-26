@@ -1,8 +1,8 @@
+# Define script variables and parameters
 param (
     [string]$containerName = "playcricket-streamlit-frontend",
     [switch]$build
 )
-
 $appPortNumber = 8501
 
 # Build docker container locally
@@ -15,6 +15,7 @@ if ($build) {
 # Find containers matching the name
 $containers = docker ps -a --filter "name=$containerName" --format "{{.ID}}"
 
+# Stop and remove existing containers
 if ($containers) {
     Write-Host "Stopping containers named '$containerName'..."
     docker stop $containers
@@ -27,6 +28,7 @@ if ($containers) {
     Write-Host "No containers named '$containerName' found. `n"
 }
 
+# Start up container
 Write-Host "Starting container: $containerName..."
 docker run -d `
   -p 8501:8501 `
@@ -34,9 +36,9 @@ docker run -d `
   $containerName
 Write-Host "Container started `n"
 
-# # Pause to let application spin up
-# Write-Host "Waiting for application to spin up..."
-# Start-Sleep -Seconds 3
+# Pause to let application spin up
+Write-Host "Waiting for application to spin up..."
+Start-Sleep -Seconds 3
 
-# # Launch App
-# Start-Process "http://localhost:$appPortNumber"
+# Launch App
+Start-Process "http://localhost:$appPortNumber"

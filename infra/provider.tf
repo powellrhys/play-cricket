@@ -1,3 +1,4 @@
+# Declare terraform config and provider
 terraform {
   required_providers {
     azurerm = {
