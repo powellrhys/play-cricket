@@ -1,7 +1,6 @@
 # Import python dependencies
 from dotenv import load_dotenv
 import streamlit as st
-import os
 
 from functions.data_functions import (
     Variables
@@ -12,15 +11,22 @@ from functions.navigation import (
 from functions.config import (
     generate_secrets_config_file
 )
+import time
+
+load_dotenv()
+
+# if 'secrets_initialized' not in st.session_state:
+#     generate_secrets_config_file()
+#     st.session_state['secrets_initialized'] = True
+#     progress_text = 'Configuring application backend'
+#     my_bar = st.progress(0, text=progress_text)
+#     for percent_complete in range(100):
+#         time.sleep(0.01)
+#         my_bar.progress(percent_complete + 1, text=progress_text)
+#     time.sleep(1)
 
 # Load environment variables
-if os.getenv('environemnt') != 'PRD':
-    load_dotenv()
-
-if "secrets_initialized" not in st.session_state:
-    generate_secrets_config_file()
-    st.session_state.secrets_initialized = True
-
+load_dotenv()
 vars = Variables()
 
 # Ensure user is authenticated to use application

@@ -10,13 +10,13 @@ from functions.data_functions import (
     Variables
 )
 
-# Load environment variables
-load_dotenv()
-vars = Variables()
-
 # Set page config
 configure_page_config(repository_name='play-cricket',
                       page_icon='🏏')
+
+# Load environment variables
+load_dotenv()
+vars = Variables()
 
 # Ensure user is authenticated to use application
 if not st.experimental_user.is_logged_in:

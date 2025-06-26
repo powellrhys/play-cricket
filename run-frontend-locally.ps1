@@ -34,9 +34,9 @@ docker run -d `
   $containerName
 Write-Host "Container started `n"
 
-# Pause to let application spin up
-Write-Host "Waiting for application to spin up..."
-Start-Sleep -Seconds 3
+# # Pause to let application spin up
+# Write-Host "Waiting for application to spin up..."
+# Start-Sleep -Seconds 3
 
-# Launch App
-Start-Process "http://localhost:$appPortNumber"
+# # Launch App
+# Start-Process "http://localhost:$appPortNumber"

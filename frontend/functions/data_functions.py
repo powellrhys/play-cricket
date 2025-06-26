@@ -4,6 +4,7 @@ from streamlit_components.data_functions import (
 )
 import streamlit as st
 import pandas as pd
+import os
 
 class Variables:
     """
@@ -18,9 +19,16 @@ class Variables:
     """
     def __init__(self):
 
-        # Collect environmental variables
-        self.blob_connection_string = st.secrets['general']['blob_connection_string']
-        self.club = st.secrets['general']['club']
+        # Streamlit Cloud or fallback to env vars
+        general_secrets = st.secrets.get("general", {})
+
+        self.blob_connection_string = (
+            general_secrets.get("blob_connection_string") or os.getenv("BLOB_CONNECTION_STRING")
+        )
+
+        self.club = (
+            general_secrets.get("club") or os.getenv("CLUB")
+        )
 
 
 class CricketData(BlobData):
