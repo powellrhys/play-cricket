@@ -20,7 +20,7 @@ Given the private nature of the data, access to the application is limited and i
 
 The application has been deployed twice:
 
-- [Azure]()
+- [Azure](https://play-cricket-streamlit-frontend.azurewebsites.net/)
 - [Streamlit Cloud](https://play-cricket-creigiaucc.streamlit.app/)
 
 ### Home Page

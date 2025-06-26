@@ -1,8 +1,10 @@
 #!/bin/sh
 set -e
 
+# Create new .streamlit directory
 mkdir -p /app/.streamlit
 
+# Create skeleton for secrets.toml file
 cat <<EOF > /app/.streamlit/secrets.toml
 [general]
 club = "${CLUB:-}"
@@ -19,4 +21,5 @@ client_secret = "${AUTH0_CLIENT_SECRET:-}"
 server_metadata_url = "${AUTH0_SERVER_METADATA_URL:-}"
 EOF
 
+# Spin up streamlit application following secrets.toml generation
 exec streamlit run frontend/main.py --server.port "${PORT:-8501}"
