@@ -10,6 +10,7 @@ on:
       - feature/*
 
 jobs:
+  # Lint yaml codebase
   lint-yaml:
     name: Lint Yaml Pipelines
     runs-on: ubuntu-latest
@@ -17,10 +18,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Lint YAML
-        uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
+      - name: Lint Python
+        uses: powellrhys/powellrhys-iac/.github/actions/lint-python@feature/play-cricket-debugging
         with:
-          config_path: '.yamllint.yml'
+          config_path: '.flake8'
+          code_directory: '.'
+
+      # - name: Lint YAML
+      #   uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
+      #   with:
+      #     config_path: '.yamllint.yml'
 
   # Lint python codebase
   lint-python:
@@ -40,7 +47,7 @@ jobs:
   # Build & Push Application
   build-application:
     name: Build Application
-    # needs: lint-python #['lint-yaml', 'lint-python']
+    needs: ['lint-yaml', 'lint-python']
     uses: powellrhys/powellrhys-iac/.github/workflows/template-build-and-push-streamlit-container.yml@feature/play-cricket-debugging
     secrets:
       docker_password: ${{ secrets.docker_password }}
@@ -48,27 +55,27 @@ jobs:
       image_name: playcricket-streamlit-frontend
       docker_file_path: frontend/Dockerfile
 
-  # # Execute Plan
-  # plan:
-  #   name: Plan
-  #   # needs: ['lint-yaml', 'lint-python', 'build-application']
-  #   uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@feature/play-cricket-debugging
-  #   with:
-  #     tf_directory: 'infra'
-  #     tf_vars_file_name: 'values.tfvars'
-  #   secrets:
-  #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  # Execute Plan
+  plan:
+    name: Plan
+    needs: ['lint-yaml', 'lint-python', 'build-application']
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@feature/play-cricket-debugging
+    with:
+      tf_directory: 'infra'
+      tf_vars_file_name: 'values.tfvars'
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
-  # # Execute apply
-  # apply:
-  #   needs: plan
-  #   # needs: ['lint-yaml', 'lint-python', 'build-application', 'plan']
-  #   name: Apply
-  #   uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@feature/play-cricket-debugging
-  #   with:
-  #     should_apply: 'true'
-  #     release_environment: 'PROD'
-  #     tf_directory: 'infra'
-  #     tf_vars_file_name: 'values.tfvars'
-  #   secrets:
-  #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  # Execute apply
+  apply:
+    needs: plan
+    needs: ['lint-yaml', 'lint-python', 'build-application', 'plan']
+    name: Apply
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@feature/play-cricket-debugging
+    with:
+      should_apply: 'true'
+      release_environment: 'PROD'
+      tf_directory: 'infra'
+      tf_vars_file_name: 'values.tfvars'
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
