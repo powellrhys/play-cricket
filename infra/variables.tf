@@ -24,5 +24,6 @@ variable "app_service_app_settings" {
   description = "App Service application settings (key-value pairs)"
   type        = map(string)
   default     = {}
+  sensitive   = true
 }
 
