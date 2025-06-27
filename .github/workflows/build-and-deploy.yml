@@ -53,7 +53,7 @@ jobs:
   plan:
     name: Plan
     # needs: ['lint-yaml', 'lint-python', 'build-application']
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@app_service_app_settings
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@feautre/secret_injection
     with:
       tf_directory: 'infra'
       tf_vars_file_name: 'values.tfvars'
