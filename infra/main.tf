@@ -8,5 +8,5 @@ module "frontend" {
     service_plan_id     = data.azurerm_app_service_plan.app_service_plan.id
     docker_image        = var.docker_image_name
     docker_image_tag    = "latest"
-    app_settings        = {}
+    app_service_app_settings = var.app_service_app_settings
 }

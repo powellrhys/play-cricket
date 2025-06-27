@@ -18,3 +18,12 @@ variable "docker_image_name" {
   description = "The name of the Docker image"
   default     = ""
 }
+
+# Define app service app settings
+variable "app_service_app_settings" {
+  description = "App Service application settings (key-value pairs)"
+  type        = map(string)
+  default     = {}
+  sensitive   = true
+}
+

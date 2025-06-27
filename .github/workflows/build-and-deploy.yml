@@ -59,6 +59,7 @@ jobs:
       tf_vars_file_name: 'values.tfvars'
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      app_service_app_settings: ${{ secrets.app_service_app_settings }}
 
   # Execute apply
   apply:
@@ -72,3 +73,4 @@ jobs:
       tf_vars_file_name: 'values.tfvars'
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      app_service_app_settings: ${{ secrets.app_service_app_settings }}
