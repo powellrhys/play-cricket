@@ -1,6 +1,6 @@
 # Define azure app service module
 module "frontend" {
-    source = "git::https://github.com/powellrhys/powellrhys-iac.git//terraform/azure/app_service?ref=feautre/secret_injection"
+    source = "git::https://github.com/powellrhys/powellrhys-iac.git//terraform/azure/app_service?ref=main"
 
     app_service_name    = "play-cricket-streamlit-frontend"
     resource_group_name = var.app_service_resource_group
