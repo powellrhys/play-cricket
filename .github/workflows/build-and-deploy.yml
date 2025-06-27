@@ -61,15 +61,16 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       app_service_app_settings: ${{ secrets.app_service_app_settings }}
 
-  # # Execute apply
-  # apply:
-  #   needs: ['lint-yaml', 'lint-python', 'build-application', 'plan']
-  #   name: Apply
-  #   uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
-  #   with:
-  #     should_apply: 'true'
-  #     release_environment: 'PROD'
-  #     tf_directory: 'infra'
-  #     tf_vars_file_name: 'values.tfvars'
-  #   secrets:
-  #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  # Execute apply
+  apply:
+    # needs: ['lint-yaml', 'lint-python', 'build-application', 'plan']
+    name: Apply
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
+    with:
+      should_apply: 'true'
+      release_environment: 'PROD'
+      tf_directory: 'infra'
+      tf_vars_file_name: 'values.tfvars'
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      app_service_app_settings: ${{ secrets.app_service_app_settings }}
