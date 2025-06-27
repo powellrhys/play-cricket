@@ -65,7 +65,7 @@ jobs:
   apply:
     # needs: ['lint-yaml', 'lint-python', 'build-application', 'plan']
     name: Apply
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@feautre/secret_injection
     with:
       should_apply: 'true'
       release_environment: 'PROD'
