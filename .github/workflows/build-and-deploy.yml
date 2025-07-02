@@ -28,19 +28,15 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Behave tests
-        run: |
-          behave features \
-            --no-snippets \
-            --no-source \
-            --format=progress \
-            --quiet
+        run: behave features --format=plain --outfile=behave.log
 
-      - name: Upload behave logs (on failure only)
+      - name: Upload behave.log (only if failed)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: behave-logs
+          name: behave-log
           path: behave.log
+
 
   # # Lint yaml codebase
   # lint-yaml:
