@@ -6,7 +6,7 @@ import io
 import os
 
 # Import project dependencies
-from functions.logging_functions import (
+from backend.functions.logging_functions import (
     log_function_use,
     logger
 )

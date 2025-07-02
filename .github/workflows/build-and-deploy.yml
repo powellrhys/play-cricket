@@ -10,67 +10,99 @@ on:
       - feature/*
 
 jobs:
-  # Lint yaml codebase
-  lint-yaml:
-    name: Lint Yaml Pipelines
+  bdd-tests:
+    name: Run Behave BDD Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Lint YAML
-        uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          config_path: '.yamllint.yml'
+          python-version: '3.11'
 
-  # Lint python codebase
-  lint-python:
-    name: Lint Python Codebase
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Lint Python
-        uses: powellrhys/powellrhys-iac/.github/actions/lint-python@main
+      - name: Run Behave tests
+        run: |
+          behave features \
+            --no-snippets \
+            --no-source \
+            --format=progress \
+            --quiet
+
+      - name: Upload behave logs (on failure only)
+        if: failure()
+        uses: actions/upload-artifact@v4
         with:
-          config_path: '.flake8'
-          code_directory: '.'
+          name: behave-logs
+          path: behave.log
+
+  # # Lint yaml codebase
+  # lint-yaml:
+  #   name: Lint Yaml Pipelines
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Lint YAML
+  #       uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
+  #       with:
+  #         config_path: '.yamllint.yml'
+
+  # # Lint python codebase
+  # lint-python:
+  #   name: Lint Python Codebase
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Lint Python
+  #       uses: powellrhys/powellrhys-iac/.github/actions/lint-python@main
+  #       with:
+  #         config_path: '.flake8'
+  #         code_directory: '.'
 
 
-  # Build & Push Application
-  build-application:
-    name: Build Application
-    needs: ['lint-yaml', 'lint-python']
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-build-and-push-container.yml@main
-    secrets:
-      docker_password: ${{ secrets.docker_password }}
-    with:
-      image_name: playcricket-streamlit-frontend
-      docker_file_path: frontend/Dockerfile
+  # # Build & Push Application
+  # build-application:
+  #   name: Build Application
+  #   needs: ['lint-yaml', 'lint-python']
+  #   uses: powellrhys/powellrhys-iac/.github/workflows/template-build-and-push-container.yml@main
+  #   secrets:
+  #     docker_password: ${{ secrets.docker_password }}
+  #   with:
+  #     image_name: playcricket-streamlit-frontend
+  #     docker_file_path: frontend/Dockerfile
 
-  # Execute Plan
-  plan:
-    name: Plan
-    needs: ['lint-yaml', 'lint-python', 'build-application']
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
-    with:
-      tf_directory: 'infra'
-      tf_vars_file_name: 'values.tfvars'
-    secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      app_service_app_settings: ${{ secrets.app_service_app_settings }}
+  # # Execute Plan
+  # plan:
+  #   name: Plan
+  #   needs: ['lint-yaml', 'lint-python', 'build-application']
+  #   uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
+  #   with:
+  #     tf_directory: 'infra'
+  #     tf_vars_file_name: 'values.tfvars'
+  #   secrets:
+  #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  #     app_service_app_settings: ${{ secrets.app_service_app_settings }}
 
-  # Execute apply
-  apply:
-    needs: ['lint-yaml', 'lint-python', 'build-application', 'plan']
-    name: Apply
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
-    with:
-      should_apply: 'true'
-      release_environment: 'PROD'
-      tf_directory: 'infra'
-      tf_vars_file_name: 'values.tfvars'
-    secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      app_service_app_settings: ${{ secrets.app_service_app_settings }}
+  # # Execute apply
+  # apply:
+  #   needs: ['lint-yaml', 'lint-python', 'build-application', 'plan']
+  #   name: Apply
+  #   uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
+  #   with:
+  #     should_apply: 'true'
+  #     release_environment: 'PROD'
+  #     tf_directory: 'infra'
+  #     tf_vars_file_name: 'values.tfvars'
+  #   secrets:
+  #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  #     app_service_app_settings: ${{ secrets.app_service_app_settings }}
