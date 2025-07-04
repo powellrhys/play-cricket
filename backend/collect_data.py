@@ -3,12 +3,12 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 # Import project dependencies
-from functions.data_functions import (
+from backend.functions.data_functions import (
     write_df_to_blob,
     APIService,
     Variables
 )
-from functions.logging_functions import (
+from backend.functions.logging_functions import (
     logger
 )
 

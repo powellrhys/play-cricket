@@ -14,5 +14,8 @@ python-dotenv==1.0.1
 azure-core==1.32.0
 pandas==2.2.3
 
+# Testing dependencies
+behave==1.2.6
+
 # Custom packages
 git+https://github.com/powellrhys/python-streamlit-components.git@v0.1.4
