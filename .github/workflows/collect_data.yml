@@ -47,4 +47,4 @@ jobs:
           api_token: ${{ secrets.api_token }}
           blob_connection_string: ${{ secrets.blob_connection_string }}
         run: |
-          python backend/collect_data.py
+          python -m backend.collect_data
