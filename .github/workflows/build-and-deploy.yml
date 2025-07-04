@@ -10,46 +10,32 @@ on:
       - feature/*
 
 jobs:
-  bdd-tests:
-    name: Run Behave BDD Tests
+  # Perform BDD tests
+  bdd-testing:
+    name: Execute BDD tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: BDD Tests
+        uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@feature/bdd_testing
         with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run Behave tests
-        run: behave features --format=plain --outfile=behave.log
-
-      - name: Upload behave.log (only if failed)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: behave-log
-          path: behave.log
-
+          features_path: 'features'
+          requirements_path: 'requirements.txt'
 
   # # Lint yaml codebase
   # lint-yaml:
   #   name: Lint Yaml Pipelines
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+      # - name: Checkout code
+      #   uses: actions/checkout@v4
 
-  #     - name: Lint YAML
-  #       uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
-  #       with:
-  #         config_path: '.yamllint.yml'
+      # - name: Lint YAML
+      #   uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
+      #   with:
+      #     config_path: '.yamllint.yml'
 
   # # Lint python codebase
   # lint-python:
