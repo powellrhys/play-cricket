@@ -65,7 +65,7 @@ jobs:
   # Execute Plan
   plan:
     name: Plan
-    needs: ['lint-yaml', 'lint-python', 'bdd-testing', 'build-application']
+    needs: ['build-application']
     uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
     with:
       tf_directory: 'infra'
@@ -76,7 +76,7 @@ jobs:
 
   # Execute apply
   apply:
-    needs: ['lint-yaml', 'lint-python', 'bdd-testing', 'build-application', 'plan']
+    needs: ['plan']
     name: Apply
     uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
     with:
@@ -98,7 +98,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Restart App
-        uses: powellrhys/powellrhys-iac/.github/actions/restart-appservice@feature/restart_app_service
+        uses: powellrhys/powellrhys-iac/.github/actions/restart-appservice@main
         with:
           azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
           webapp_name: play-cricket-streamlit-frontend
