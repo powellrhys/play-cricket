@@ -10,80 +10,95 @@ on:
       - feature/*
 
 jobs:
-  # Perform BDD tests
-  bdd-testing:
-    name: Execute BDD tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # # Perform BDD tests
+  # bdd-testing:
+  #   name: Execute BDD tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: BDD Tests
-        uses: powellrhys/powellrhys-iac/.github/actions/bdd-testing@main
-        with:
-          features_path: 'features'
-          requirements_path: 'requirements.txt'
+  #     - name: BDD Tests
+  #       uses: powellrhys/powellrhys-iac/.github/actions/bdd-testing@main
+  #       with:
+  #         features_path: 'features'
+  #         requirements_path: 'requirements.txt'
 
-  # Lint yaml codebase
-  lint-yaml:
-    name: Lint Yaml Pipelines
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # # Lint yaml codebase
+  # lint-yaml:
+  #   name: Lint Yaml Pipelines
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Lint YAML
-        uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
-        with:
-          config_path: '.yamllint.yml'
+  #     - name: Lint YAML
+  #       uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
+  #       with:
+  #         config_path: '.yamllint.yml'
+
+  # # Lint python codebase
+  # lint-python:
+  #   name: Lint Python Codebase
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Lint Python
+  #       uses: powellrhys/powellrhys-iac/.github/actions/lint-python@main
+  #       with:
+  #         config_path: '.flake8'
+  #         code_directory: '.'
+
+  # # Build & Push Application
+  # build-application:
+  #   name: Build Application
+  #   needs: ['lint-yaml', 'lint-python', 'bdd-testing']
+  #   uses: powellrhys/powellrhys-iac/.github/workflows/template-build-and-push-container.yml@main
+  #   secrets:
+  #     docker_password: ${{ secrets.docker_password }}
+  #   with:
+  #     image_name: playcricket-streamlit-frontend
+  #     docker_file_path: frontend/Dockerfile
+
+  # # Execute Plan
+  # plan:
+  #   name: Plan
+  #   needs: ['lint-yaml', 'lint-python', 'bdd-testing', 'build-application']
+  #   uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
+  #   with:
+  #     tf_directory: 'infra'
+  #     tf_vars_file_name: 'values.tfvars'
+  #   secrets:
+  #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  #     app_service_app_settings: ${{ secrets.app_service_app_settings }}
+
+  # # Execute apply
+  # apply:
+  #   needs: ['lint-yaml', 'lint-python', 'bdd-testing', 'build-application', 'plan']
+  #   name: Apply
+  #   uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
+  #   with:
+  #     should_apply: 'true'
+  #     release_environment: 'PROD'
+  #     tf_directory: 'infra'
+  #     tf_vars_file_name: 'values.tfvars'
+  #   secrets:
+  #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  #     app_service_app_settings: ${{ secrets.app_service_app_settings }}
 
   # Lint python codebase
-  lint-python:
-    name: Lint Python Codebase
+  restart-appservice:
+    name: Restart App Service
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Lint Python
-        uses: powellrhys/powellrhys-iac/.github/actions/lint-python@main
+        uses: powellrhys/powellrhys-iac/.github/actions/restart-appservice@feature/restart_app_service
         with:
-          config_path: '.flake8'
-          code_directory: '.'
-
-  # Build & Push Application
-  build-application:
-    name: Build Application
-    needs: ['lint-yaml', 'lint-python', 'bdd-testing']
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-build-and-push-container.yml@main
-    secrets:
-      docker_password: ${{ secrets.docker_password }}
-    with:
-      image_name: playcricket-streamlit-frontend
-      docker_file_path: frontend/Dockerfile
-
-  # Execute Plan
-  plan:
-    name: Plan
-    needs: ['lint-yaml', 'lint-python', 'bdd-testing', 'build-application']
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
-    with:
-      tf_directory: 'infra'
-      tf_vars_file_name: 'values.tfvars'
-    secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      app_service_app_settings: ${{ secrets.app_service_app_settings }}
-
-  # Execute apply
-  apply:
-    needs: ['lint-yaml', 'lint-python', 'bdd-testing', 'build-application', 'plan']
-    name: Apply
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
-    with:
-      should_apply: 'true'
-      release_environment: 'PROD'
-      tf_directory: 'infra'
-      tf_vars_file_name: 'values.tfvars'
-    secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      app_service_app_settings: ${{ secrets.app_service_app_settings }}
+          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+          webapp_name: play-cricket-streamlit-frontend
+          resource_group: powellrhys-app-service-plan-rg
