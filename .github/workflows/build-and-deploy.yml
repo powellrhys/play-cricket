@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: BDD Tests
-        uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@feature/bdd_testing
+        uses: powellrhys/powellrhys-iac/.github/actions/bdd-testing@feature/bdd_testing
         with:
           features_path: 'features'
           requirements_path: 'requirements.txt'
