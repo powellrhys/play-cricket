@@ -65,7 +65,7 @@ jobs:
   # Execute Plan
   plan:
     name: Plan
-    needs: ['lint-yaml', 'lint-python', 'bdd-testing', 'build-application']
+    needs: ['build-application']
     uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
     with:
       tf_directory: 'infra'
@@ -76,7 +76,7 @@ jobs:
 
   # Execute apply
   apply:
-    needs: ['lint-yaml', 'lint-python', 'bdd-testing', 'build-application', 'plan']
+    needs: ['plan']
     name: Apply
     uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
     with:
@@ -87,3 +87,19 @@ jobs:
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       app_service_app_settings: ${{ secrets.app_service_app_settings }}
+
+  # Lint python codebase
+  restart-appservice:
+    needs: ['apply']
+    name: Restart App Service
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Restart App
+        uses: powellrhys/powellrhys-iac/.github/actions/restart-appservice@main
+        with:
+          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+          webapp_name: play-cricket-streamlit-frontend
+          resource_group: powellrhys-app-service-plan-rg
