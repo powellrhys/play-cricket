@@ -1,20 +1,19 @@
 name: Collect Play Cricket Data
-
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * TUE'
   pull_request:
-    types:
-      - opened
+    types: [opened, synchronize, reopened]
     paths:
       - 'backend/**'
   push:
     branches:
       - main
-      - feature/*
-    paths:
-      - 'backend/**'
-  schedule:
-    - cron: '0 0 * * TUE'
+
+concurrency:
+  group: data-collection
+  cancel-in-progress: false
 
 jobs:
   scrape-data:
