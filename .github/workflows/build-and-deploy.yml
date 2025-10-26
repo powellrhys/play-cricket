@@ -2,60 +2,44 @@ name: Build & Deploy Application
 on:
   workflow_dispatch:
   pull_request:
-    types:
-      - opened
+    types: [opened, synchronize, reopened]
   push:
     branches:
       - main
-      - feature/*
+
+concurrency:
+  group: build-and-deploy
+  cancel-in-progress: false
 
 jobs:
-  # Perform BDD tests
-  bdd-testing:
-    name: Execute BDD tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: BDD Tests
-        uses: powellrhys/powellrhys-iac/.github/actions/bdd-testing@main
-        with:
-          features_path: 'features'
-          requirements_path: 'requirements.txt'
-
   # Lint yaml codebase
   lint-yaml:
     name: Lint Yaml Pipelines
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Lint YAML
-        uses: powellrhys/powellrhys-iac/.github/actions/lint-yaml@main
-        with:
-          config_path: '.yamllint.yml'
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-yaml.yml@v1.0.0
+    with:
+      config_path: '.yamllint.yml'
 
   # Lint python codebase
   lint-python:
     name: Lint Python Codebase
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-lint-python.yml@v1.0.0
+    with:
+      config_path: '.flake8'
+      code_directory: '.'
 
-      - name: Lint Python
-        uses: powellrhys/powellrhys-iac/.github/actions/lint-python@main
-        with:
-          config_path: '.flake8'
-          code_directory: '.'
+  # Run BDD Tests
+  bdd-testing:
+    name: Run BDD Tests
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-run-bdd-tests.yml@v1.0.0
+    with:
+      features_path: ./features/
+      toml_dependencies: '.[frontend,backend,testing]'
 
   # Build & Push Application
   build-application:
     name: Build Application
     needs: ['lint-yaml', 'lint-python', 'bdd-testing']
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-build-and-push-container.yml@main
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-build-and-push-container.yml@v1.0.0
     secrets:
       docker_password: ${{ secrets.docker_password }}
     with:
@@ -66,7 +50,7 @@ jobs:
   plan:
     name: Plan
     needs: ['build-application']
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@v1.0.0
     with:
       tf_directory: 'infra'
       tf_vars_file_name: 'values.tfvars'
@@ -78,7 +62,7 @@ jobs:
   apply:
     needs: ['plan']
     name: Apply
-    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@main
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-plan-apply-terraform.yml@v1.0.0
     with:
       should_apply: 'true'
       release_environment: 'PROD'
@@ -88,18 +72,13 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       app_service_app_settings: ${{ secrets.app_service_app_settings }}
 
-  # Lint python codebase
+  # Restart App Service
   restart-appservice:
     needs: ['apply']
     name: Restart App Service
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Restart App
-        uses: powellrhys/powellrhys-iac/.github/actions/restart-appservice@main
-        with:
-          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
-          webapp_name: play-cricket-streamlit-frontend
-          resource_group: powellrhys-app-service-plan-rg
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-restart-appservice.yml@v1.0.0
+    with:
+      webapp_name: play-cricket-streamlit-frontend
+      resource_group: powellrhys-app-service-plan-rg
+    secrets:
+      azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
