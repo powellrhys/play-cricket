@@ -32,13 +32,22 @@ jobs:
     name: Run BDD Tests
     uses: powellrhys/powellrhys-iac/.github/workflows/template-run-bdd-tests.yml@v1.0.0
     with:
-      features_path: ./features/
+      features_path: ./tests/features/
+      toml_dependencies: '.[frontend,backend,testing]'
+
+  # Run PyTests
+  pytesting:
+    name: Run PyTests
+    uses: powellrhys/powellrhys-iac/.github/workflows/template-run-pytests.yml@v1.0.0
+    secrets:
+      codecov_token: ${{ secrets.codecov_token }}
+    with:
       toml_dependencies: '.[frontend,backend,testing]'
 
   # Build & Push Application
   build-application:
     name: Build Application
-    needs: ['lint-yaml', 'lint-python', 'bdd-testing']
+    needs: ['lint-yaml', 'lint-python', 'bdd-testing', 'pytesting']
     uses: powellrhys/powellrhys-iac/.github/workflows/template-build-and-push-container.yml@v1.0.0
     secrets:
       docker_password: ${{ secrets.docker_password }}
