@@ -5,6 +5,11 @@ import pytest
 
 def test_get_navigation_returns_nav_object():
     """
+    Test that `get_navigation` returns a navigation object
+    and correctly initializes Streamlit pages.
+
+    The test ensures `get_navigation` properly builds and returns a navigation
+    structure when provided with a valid club name.
     """
     with patch("frontend.functions.navigation.st.Page") as \
             mock_page, patch("frontend.functions.navigation.st.navigation") as mock_nav:
@@ -29,5 +34,11 @@ def test_get_navigation_returns_nav_object():
         assert nav == "nav_obj"
 
 def test_get_navigation_raises_typeerror():
+    """
+    Test that `get_navigation` raises a TypeError when provided
+    with an invalid argument type.
+
+    Ensures the function validates input types correctly.
+    """
     with pytest.raises(TypeError):
-        get_navigation(123)  # Non-string input should raise TypeError
+        get_navigation(123)

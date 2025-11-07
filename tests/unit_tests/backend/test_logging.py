@@ -4,6 +4,11 @@ import logging
 
 def test_log_function_use_logs_messages(caplog):
     """
+    Test that the `log_function_use` decorator correctly logs messages
+    when a decorated function is executed successfully.
+
+    Args:
+        caplog (pytest.LogCaptureFixture): Pytest fixture used to capture log output.
     """
     # Arrange
     logger = logging.getLogger("test_logger")
