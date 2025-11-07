@@ -1,17 +1,9 @@
-# Import python dependencies
+# Import dependencies
+from streamlit_components.ui_components import configure_page_config
+from functions.ui_sections import render_extract_data
+from functions.data_functions import Variables
 from dotenv import load_dotenv
 import streamlit as st
-
-# Import project dependencies
-from streamlit_components.ui_components import (
-    configure_page_config
-)
-from functions.data_functions import (
-    Variables
-)
-from functions.ui_sections import (
-    render_extract_data
-)
 
 # Load environment variables
 load_dotenv()

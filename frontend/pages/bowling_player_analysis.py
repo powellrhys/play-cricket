@@ -1,19 +1,9 @@
-# Import python dependencies
+# Import dependencies
+from functions.ui_sections import render_bowling_player_home_away_performance, render_bowling_player_wicket_taking
+from streamlit_components.ui_components import configure_page_config
+from functions.data_functions import CricketData, Variables
 from dotenv import load_dotenv
 import streamlit as st
-
-# Import project dependencies
-from streamlit_components.ui_components import (
-    configure_page_config
-)
-from functions.data_functions import (
-    CricketData,
-    Variables
-)
-from functions.ui_sections import (
-    render_bowling_player_home_away_performance,
-    render_bowling_player_wicket_taking
-)
 
 # Load environment variables
 load_dotenv()

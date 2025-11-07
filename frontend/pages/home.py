@@ -1,14 +1,8 @@
-# Import python dependencies
+# Import dependencies
+from streamlit_components.ui_components import configure_page_config
+from functions.data_functions import Variables
 from dotenv import load_dotenv
 import streamlit as st
-
-# Import project dependencies
-from streamlit_components.ui_components import (
-    configure_page_config
-)
-from functions.data_functions import (
-    Variables
-)
 
 # Set page config
 configure_page_config(repository_name='play-cricket',
