@@ -32,11 +32,16 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Install all dependencies
-      - name: Install dependencies
+      # Install Poetry
+      - name: Install Poetry
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install poetry
+
+      # Install project dependencies via Poetry
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction --no-root
 
       # Run Python Script
       - name: Run Python data collection script
@@ -46,4 +51,4 @@ jobs:
           api_token: ${{ secrets.api_token }}
           blob_connection_string: ${{ secrets.blob_connection_string }}
         run: |
-          python -m backend.collect_data
+          poetry run python -m backend.collect_data

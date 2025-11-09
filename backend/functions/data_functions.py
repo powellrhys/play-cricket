@@ -1,15 +1,11 @@
-# Import python dependencies
+# Import dependencies
+from backend.functions.logging_functions import log_function_use, logger
 from azure.storage.blob import BlobServiceClient
 import pandas as pd
 import requests
 import io
 import os
 
-# Import project dependencies
-from backend.functions.logging_functions import (
-    log_function_use,
-    logger
-)
 
 class Variables:
     """

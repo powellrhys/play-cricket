@@ -1,4 +1,4 @@
-# Import python dependencies
+# Import dependencies
 import streamlit as st
 
 def get_navigation(
